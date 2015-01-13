@@ -1,0 +1,35 @@
+The Favicon-Fetcher is a helper tool to get the logos from 
+organisations listed in a SAML metadata file.
+
+Copyright (c) 2014, SWITCH
+---------------------------------------------------------------
+
+Run this script to update all favicon logos for all IdPs.
+
+1. Run the command:
+
+   $ php get-all-favicons-from-metadata-file.php /opt/wayfrenater/renater-metadata.xml
+   
+   This will download all logos to the directory renater-metadata-logos.
+   Additionally, two files are created in the current working directory:
+   * favicon-map.csv  A file listing the IdP entityID and the path to the logo
+   * IDProvider-logos.conf.php A file that can be included from IDProvider.conf.php
+     that contains lines like:
+     $IDProviders['https://idp.unistra.fr/idp/shibboleth']['Logo']['URL'] = $base_URL.'unistra.fr.png';
+
+2. Copy all logos from renater-metadata-logos to /opt/#wayf directory#/favicons/
+   Replace #wayf directory# with the actual directory;
+
+   $ cp renater-metadata-logos/* /opt/wayfrenater/favicons/
+
+3. Move the file IDProvider-logos.conf.php to /opt/#wayf directory#/
+
+4. Ensure that in /opt/#wayf directory#/IDProvider.conf.php there are the following two lines
+   in the IDProvider.conf.php file:
+
+   -----------------------8<-----------------------------
+   $base_URL = 'https://discovery.renater.fr/#wayf path#/favicons/';
+   require_once('IDProvider-logos.conf.php');
+   -----------------------8<-----------------------------
+
+   These directives will include all the downloaded logos in the IDProvider configuration file.

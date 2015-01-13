@@ -159,6 +159,21 @@
   //$WAYFLogFile = '/var/log/apache2/wayf.log'; 
 
 
+// Geo-SWITCHwayf configuration variables
+// *************************************
+
+// Set to true to retrieve geolocation data for the IDP
+//$UseDiscojuiceGeolocation = true;
+
+// Set to true if you want the block my federation to appear
+//$showFederationDiv = true;
+
+// Set to true if you want the block CRU Account to appear
+//$showCRUAccountDiv = true;
+
+// Set to true if you want the idp search panel to be folded
+//$isPanelFolded = true;
+
 
 // 4. Files and path Settings
 //***************************

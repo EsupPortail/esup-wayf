@@ -1,0 +1,209 @@
+/* Charte graphique de Paris 1
+Bleu principal : #003C71;
+Bleu alternatif : #2E5693;
+Doré : #C99212;
+*/
+
+html, body {
+  height: 100%;
+  min-width: 430px;
+  -webkit-font-smoothing: antialiased;
+  font: normal 10px arial,sans-serif;
+}
+
+
+/* Responsive logo */
+#header-logo {
+  display: block;
+  width: 296px;
+  height: 105px;
+margin-bottom: 20px;
+margin-top: 20px;
+}
+
+@media only screen and (-webkit-max-device-pixel-ratio: 1.5),
+ only screen and (-o-max-device-pixel-ratio: 3/2),
+ only screen and (max--moz-device-pixel-ratio: 1.5),
+ only screen and (max-device-pixel-ratio: 1.5) {
+  #header-logo {
+    background: url("../images/logo-univ-paris1.fr.png") no-repeat;
+  }
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5),
+ only screen and (-o-min-device-pixel-ratio: 3/2),
+ only screen and (min--moz-device-pixel-ratio: 1.5),
+ only screen and (min-device-pixel-ratio: 1.5) {
+  #header-logo {
+    background-image: url("../images/logo-univ-paris1.fr@2x.png");
+    background-size: 296px 105px;
+  }
+}
+
+/* Enlever la marge et le padding pour les téléphones */
+@media screen and (max-width: 480px) {
+    .container {
+      padding:0;
+      margin:0;
+    }
+
+    html, body {
+      padding:0;
+    }
+}
+
+/* Tablettes */
+@media screen and (min-width: 768px) {
+	html, body {
+		font-size: 12px;
+	}
+}
+
+/* Ordinateur de bureau */
+@media screen and (min-width: 992px) {
+	html, body {
+		font-size: 14px;
+	}
+}
+
+a {
+	color : #263F82;
+}
+
+h3 {
+	font-size: 1.8em;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+h4 {
+	font-size: 1.5em;
+	margin-bottom: 5px;
+}
+
+p {
+	margin: 0px;
+}
+
+.well {
+	padding: 15px;
+}
+
+.icone {
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	margin-top: 10px;
+	margin-left: 4px;
+	background: url("../images/sprite_sheet.png") no-repeat;
+}
+
+#div-co-myfederation {
+	background-color: #003C71;
+}
+
+#div-co-myfederation:hover {
+	background-color: #2E5693;
+}
+
+#div-co-myfederation>h3 {
+	color : white;
+}
+
+.panel-title{
+	font-size: 1.8em;
+}
+
+.glyphicon-arrow-right {
+	color: #C99212;
+}
+
+#div-co-wayf {
+	background-color: #F5F5F5;
+}
+
+#div-co-wayf:hover {
+	background-color: #EDEDED;
+}
+
+#div-co-cru {
+	background-color: #FFFFFF;
+}
+
+#div-co-cru:hover {
+	background-color: #FCFCFC;
+}
+
+#col-co {
+	margin: 20px 50px;
+}
+
+.marge-div {
+	margin-right: 50px;
+	margin-left: 50px;
+}
+
+#map {
+	margin: 22px;
+	height: 500px;
+	border:1px solid #ccc;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+#listeDynamique {
+	max-height: 500px;
+	overflow-y: auto;
+}
+
+#conteneurListe {
+	padding:0px;
+	margin: 22px;
+	height: 500px;
+}
+
+#wrap {
+  min-height: 100%;
+  min-height: 100vh;
+  margin-bottom: -20px;
+}
+
+#wrap:after {
+	content: "";
+	display : block;
+}
+
+#search-icon {
+	border-top-left-radius: 4px;
+	border-bottom-left-radius: 4px;
+}
+
+.checkbox {
+	padding-left: 15px;
+}
+
+.panel-title {
+	color: #263F82;
+}
+
+.footer, #wrap:after  {
+	height: 20px;
+}
+
+.footer {
+	text-align: center;
+}
+
+.ui-helper-hidden-accessible { 
+	display: none; 
+}
+
+.input-group {
+	margin: 10px;
+}
+
+.nounderline:link 
+{ 
+	text-decoration:none; 
+}
+
