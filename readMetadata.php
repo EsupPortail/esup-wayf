@@ -53,6 +53,8 @@ if(isRunViaCLI()){
 	
 	echo 'Parsing metadata file '.$metadataFile."\n";
 	list($metadataIDProviders, $metadataSProviders) = parseMetadata($metadataFile, $defaultLanguage);
+
+	if ($UseDiscojuiceGeolocation) addDiscojuiceGeolocation($metadataIDProviders);
 	
 	// If $metadataIDProviders is not FALSE, dump results in $metadataIDPFile.
 	if(is_array($metadataIDProviders)){ 
@@ -122,6 +124,8 @@ if(isRunViaCLI()){
 		
 		// Regenerate $metadataIDPFile.
 		list($metadataIDProviders, $metadataSProviders) = parseMetadata($metadataFile, $defaultLanguage);
+
+		if ($UseDiscojuiceGeolocation) addDiscojuiceGeolocation($metadataIDProviders);
 		
 		// If $metadataIDProviders is not an array (parse error in metadata),
 		// $IDProviders from $IDPConfigFile will be used.
@@ -679,6 +683,20 @@ function getAttributeConsumingServiceNames($RoleDescriptorNode){
 	}
 	
 	return $Entity;
+}
+
+/******************************************************************************/
+// Get GeolocationHint from discojuice feed (rely on discojuiceGeolocation/update.sh run in a cron)
+function addDiscojuiceGeolocation(&$metadataIDProviders) {
+	foreach (glob("discojuiceGeolocation/*.json") as $file) {
+		foreach (json_decode(file_get_contents($file)) as $e) {
+			if (!isset($metadataIDProviders[$e->entityID])) continue;
+			$IDP = &$metadataIDProviders[$e->entityID];
+			if (isset($IDP['GeolocationHint'])) continue;
+
+			$IDP['GeolocationHint'] = $e->geo->lat . "," . $e->geo->lon;
+		}
+	}
 }
 
 ?>

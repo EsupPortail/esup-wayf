@@ -1,4 +1,4 @@
-<?php // Copyright (c) 2014, SWITCH
+<?php // Copyright (c) 2014
 
 /*
 ******************************************************************************
@@ -34,6 +34,8 @@ function printHeader(){
 function printWAYF(){
 	
 	global $selectedIDP, $language, $IDProviders, $SProviders, $redirectCookieName, $imageURL, $redirectStateCookieName, $showPermanentSetting;
+
+	global $showFederationDiv, $showCRUAccountDiv, $isPanelFolded, $federationName;
 	
 	if (!isset($showPermanentSetting)){
 		$showPermanentSetting = false;
@@ -42,6 +44,10 @@ function printWAYF(){
 	$promptMessage =  getLocalString('make_selection');
 	$serviceName = '';
 	$entityID = '';
+
+	$useMyFederationAccount = sprintf(getLocalString('federation_account'), $federationName);
+	$useOtherFederationAccount = getLocalString('other_account');
+	$searchBarText = getLocalString('search_idp');
 	
 	// Check if entityID is available
 	if (isset($_GET['entityID'])){
@@ -83,7 +89,7 @@ function printWAYF(){
 	$actionURL = $_SERVER['SCRIPT_NAME'].'?'.htmlentities($_SERVER['QUERY_STRING']);
 	$defaultSelected = ($selectedIDP == '-') ? 'selected="selected"' : '';
 	$rememberSelectionChecked = (isset($_COOKIE[$redirectStateCookieName])) ? 'checked="checked"' : '' ;
-	
+
 	// Check if custom header template exists
 	if(file_exists('custom-body.php')){
 		include('custom-body.php');
@@ -98,6 +104,12 @@ function printWAYF(){
 function printSettings(){
 	
 	global $selectedIDP, $language, $IDProviders, $redirectCookieName;
+
+	global $showFederationDiv, $showCRUAccountDiv, $isPanelFolded, $federationName;
+
+	$useMyFederationAccount = sprintf(getLocalString('federation_account'), $federationName);
+	$useOtherFederationAccount = getLocalString('other_account');
+	$searchBarText = getLocalString('search_idp');
 	
 	$actionURL = $_SERVER['SCRIPT_NAME'].'?'.htmlentities($_SERVER['QUERY_STRING']);
 	$defaultSelected = ($selectedIDP == '-') ? 'selected="selected"' : '';
@@ -115,10 +127,8 @@ function printSettings(){
 // Prints the HTML drop down list including categories etc
 function printDropDownList($IDProviders, $selectedIDP = ''){
 	global $language;
-	
+
 	$previouslyUsedIdPsHTML = getPreviouslyUsedIdPsHTML();
-	echo $previouslyUsedIdPsHTML;
-	
 	
 	$counter = 0;
 	$optgroup = '';
@@ -141,8 +151,8 @@ function printDropDownList($IDProviders, $selectedIDP = ''){
 				if ($key == 'unknown' && empty($optgroup) && $previouslyUsedIdPsHTML == ''){
 					continue;
 				}
-				
-				echo "\n".'<optgroup label="'.$IdPName.'">';
+
+				echo "\n".'<optgroup id="idpList" label="'.$IdPName.'">';
 				$optgroup = $key;
 				
 			}
@@ -196,9 +206,12 @@ function getPreviouslyUsedIdPsHTML(){
 	
 	// Print previously used IdPs
 	$categoryName = getLocalString('last_used');
-	$content = "\n".'<optgroup label="'.$categoryName.'">'."\n".$content;
+
+
+	$content = "\n".'<optgroup id="idPreviousIDP" label="'.$categoryName.'">'."\n".$content;
 	$content .= '</optgroup>';
 	
+	echo $content;
 	return $content;
 }
 
@@ -228,7 +241,18 @@ function printOptionElement($IDProviders, $key, $selectedIDP){
 	// Add logo (which is assumed to be 16x16px) to extension string
 	$logo =  (isset($values['Logo'])) ? 'logo="'.$values['Logo']['URL']. '"' : '' ;
 	
-	return '<option value="'.$key.'"'.$selected.' data="'.htmlspecialchars($data).'" '.$logo.'>'.$IdPName.'</option>';
+	$geoData = geoDataAttributes(@$values['GeolocationHint']);
+
+	return '<option value="'.$key.'"'.$selected.' data="'.$data.'" '.$logo.$geoData.'>'.$IdPName.'</option>';
+}
+
+function geoDataAttributes($GeolocationHint) {
+	if ($GeolocationHint &&
+	    preg_match("/^([0-9.]+),([0-9.]+)$/", $GeolocationHint, $match)){
+		return sprintf(' data-lat="%s" data-lon="%s"', $match[1], $match[2]);
+        } else {
+		return '';
+	}
 }
 
 /******************************************************************************/
@@ -276,6 +300,8 @@ function printNotice(){
 /******************************************************************************/
 // Prints end of HTML page
 function printFooter(){
+
+	$myFederationCredits = getLocalString('federation_credits');
 	
 	// Check if footer template exists
 	if(file_exists('custom-footer.php')){
