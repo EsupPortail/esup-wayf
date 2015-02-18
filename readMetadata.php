@@ -14,7 +14,6 @@ require_once('config.php');
 // Init log file
 openlog("SWITCHwayf.readMetadata.php", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 
-
 // Make sure this script is not accessed directly
 if(isRunViaCLI()){
 	// Run in cli mode.
@@ -688,7 +687,7 @@ function getAttributeConsumingServiceNames($RoleDescriptorNode){
 /******************************************************************************/
 // Get GeolocationHint from discojuice feed (rely on discojuiceGeolocation/update.sh run in a cron)
 function addDiscojuiceGeolocation(&$metadataIDProviders) {
-	foreach (glob("discojuiceGeolocation/*.json") as $file) {
+	foreach (glob("Geo-SWITCHwayf/discojuice/*.json") as $file) {
 		foreach (json_decode(file_get_contents($file)) as $e) {
 			if (!isset($metadataIDProviders[$e->entityID])) continue;
 			$IDP = &$metadataIDProviders[$e->entityID];

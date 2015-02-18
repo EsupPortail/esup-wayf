@@ -1018,4 +1018,48 @@ function isRequestRefererMatchingSPHost(){
 	
 	return false;
 }
+
+/******************************************************************************/
+// Returns all the possible url for discofeed
+function discoFeed($entityID){
+	global $SProviders;
+
+	$shib = "Shibboleth.sso";
+	$disco = "/DiscoFeed";
+		
+	if (!isset($SProviders[$entityID]['ACURL'])){
+		return '';
+	}
+		
+	foreach($SProviders[$entityID]['ACURL'] as $ACURL){
+		if (strrpos($ACURL, $shib)){
+			$ACURL = substr($ACURL, 0, strrpos($ACURL, $shib) + strlen($shib));
+			$ACURL = $ACURL . $disco;
+			$feed = fetchDiscoFeed($ACURL);
+			if (!empty($feed)){
+				return $feed;
+			}
+		}
+	}
+	return '';
+}
+
+/******************************************************************************/
+// Ask for JSON discofeed to the SP
+function fetchDiscoFeed($url) {
+
+	$ch=curl_init($url);
+
+	curl_setopt($ch,CURLOPT_HEADER,true);
+	curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+	$output=curl_exec($ch);
+	$info = curl_getinfo( $ch );
+	curl_close($ch);
+
+	$json=substr($output,$info['header_size']);
+	$content = json_decode($json, true);
+
+	return $content;
+
+}
 ?>

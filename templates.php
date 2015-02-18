@@ -35,7 +35,7 @@ function printWAYF(){
 	
 	global $selectedIDP, $language, $IDProviders, $SProviders, $redirectCookieName, $imageURL, $redirectStateCookieName, $showPermanentSetting;
 
-	global $showFederationDiv, $showCRUAccountDiv, $isPanelFolded, $federationName;
+	global $showLocalIDPDiv, $showCRUAccountDiv, $isPanelFolded, $federationName, $discoFeed, $CRUID, $LocalIDPID;
 	
 	if (!isset($showPermanentSetting)){
 		$showPermanentSetting = false;
@@ -44,6 +44,36 @@ function printWAYF(){
 	$promptMessage =  getLocalString('make_selection');
 	$serviceName = '';
 	$entityID = '';
+
+	// Check if custom wayf variables are set in the URL
+	if (isset($_GET['showLocalIDPDiv'])){
+		$showLocalIDPDiv = $_GET['showLocalIDPDiv'];
+	}
+
+	if (isset($_GET['showCRUAccountDiv'])){
+		$showCRUAccountDiv = $_GET['showCRUAccountDiv'];
+	}
+
+	if (isset($_GET['isPanelFolded'])){
+		$isPanelFolded = $_GET['isPanelFolded'];
+	}
+
+
+	if (isset($discoFeed) && !empty($discoFeed)){
+
+		$showCRUAccountDiv = false;
+		$showLocalIDPDiv = false;
+
+		for ($i = 0; $i < sizeof($discoFeed); $i++){
+
+			if ($discoFeed[$i]['entityID'] == $CRUID){
+				$showCRUAccountDiv = true;
+			}
+			else if ($discoFeed[$i]['entityID'] == $LocalIDPID){
+				$showLocalIDPDiv = true;
+			}
+		}
+	}
 
 	$useMyFederationAccount = sprintf(getLocalString('federation_account'), $federationName);
 	$useOtherFederationAccount = getLocalString('other_account');
@@ -105,7 +135,20 @@ function printSettings(){
 	
 	global $selectedIDP, $language, $IDProviders, $redirectCookieName;
 
-	global $showFederationDiv, $showCRUAccountDiv, $isPanelFolded, $federationName;
+	global $showLocalIDPDiv, $showCRUAccountDiv, $isPanelFolded, $federationName;
+
+	// Check if custom wayf variables are set in the URL
+	if (isset($_GET['showLocalIDPDiv'])){
+		$showLocalIDPDiv = $_GET['showLocalIDPDiv'];
+	}
+
+	if (isset($_GET['showCRUAccountDiv'])){
+		$showCRUAccountDiv = $_GET['showCRUAccountDiv'];
+	}
+
+	if (isset($_GET['isPanelFolded'])){
+		$isPanelFolded = $_GET['isPanelFolded'];
+	}
 
 	$useMyFederationAccount = sprintf(getLocalString('federation_account'), $federationName);
 	$useOtherFederationAccount = getLocalString('other_account');
@@ -126,14 +169,29 @@ function printSettings(){
 /******************************************************************************/
 // Prints the HTML drop down list including categories etc
 function printDropDownList($IDProviders, $selectedIDP = ''){
+	
 	global $language;
+	global $discoFeed;
 
 	$previouslyUsedIdPsHTML = getPreviouslyUsedIdPsHTML();
-	
+
 	$counter = 0;
 	$optgroup = '';
+
 	foreach ($IDProviders as $key => $values){
-		
+
+		if (isset($discoFeed) && !empty($discoFeed)){
+			$foundIDP = false;
+			for ($i = 0; $i < sizeof($discoFeed); $i++){
+				if ($discoFeed[$i]['entityID'] == $key || $key == 'unknown') {
+					$foundIDP = true;
+				}
+			}
+			if (!$foundIDP){
+				continue;
+			}
+		}
+	
 		// Get IdP Name
 		$IdPName = (isset($values[$language]['Name'])) ? $values[$language]['Name'] : $IdPName = $values['Name'];
 		
@@ -148,9 +206,9 @@ function printDropDownList($IDProviders, $selectedIDP = ''){
 				
 				// Skip adding a new category if first category is 'unknown'
 				// and it is the (probably) only category
-				if ($key == 'unknown' && empty($optgroup) && $previouslyUsedIdPsHTML == ''){
-					continue;
-				}
+				// if ($key == 'unknown' && empty($optgroup) && $previouslyUsedIdPsHTML == ''){
+				// 	continue;
+				// }
 
 				echo "\n".'<optgroup id="idpList" label="'.$IdPName.'">';
 				$optgroup = $key;
@@ -163,7 +221,7 @@ function printDropDownList($IDProviders, $selectedIDP = ''){
 		
 		$counter++;
 	}
-	
+
 	// Add last optgroup if that was used
 	if (!empty($optgroup)){
 		echo "\n".'</optgroup>';
