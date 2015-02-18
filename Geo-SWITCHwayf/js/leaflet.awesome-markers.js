@@ -30,7 +30,9 @@
             spinClass: 'fa-spin',
             extraClasses: '',
             icon: 'home',
-            markerColor: 'blue'
+            markerColor: 'blue',
+            iconColor: 'white',
+            html : ""
         },
 
         initialize: function (options) {
@@ -41,7 +43,12 @@
             var div = document.createElement('div'),
                 options = this.options;
 
-            if (options.icon) {
+            // Modification markercluster
+            if (options.html) {
+                div.innerHTML = this._createInner();
+            }
+            // Modification favion
+            else {
                 div.innerHTML = options.icon;
             }
 
@@ -75,7 +82,7 @@
                 }
             }
 
-            return "<i " + iconColorStyle + "class='" + options.extraClasses + " " + options.prefix + " " + iconClass + " " + iconSpinClass + " " + iconColorClass + "'></i>";
+            return "<i " + iconColorStyle + "class='" + options.extraClasses + " " + options.prefix + " " + iconClass + " " + iconSpinClass + " " + iconColorClass + "'>" + options.html + "</i>";
         },
 
         _setIconStyles: function (img, name) {
@@ -111,7 +118,7 @@
 
             this._setIconStyles(div, 'shadow');
             return div;
-      }
+      },
     });
         
     L.AwesomeMarkers.icon = function (options) {

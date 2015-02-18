@@ -1,24 +1,25 @@
 #!/bin/bash
 
 # Shell script to update the icones' sprite sheet and the sprite-sheet-array.js file.
-# This script should be placed at the program root
-# It has to be executed with a cron rule every day
-
 # Imagemagick needs to be installed
 
-# To configure CRON : 
-# $ crontab -e
-# Add this line at the end of the file to execute the script every day at 4 am
-# 0 4 * * * /path-to-wayf/update-sprite-sheet.sh
+if [ $# -ne 1 ]
+	then
+	echo "Error"
+	echo "Usage : Parameter : path to WAYF directory"
+	exit 1
+fi
+
+PATHTOWAYF=$1
 
 # Favicon-Fetcher directory
-FAVFETCHDIR="Favicon-Fetcher"
+FAVFETCHDIR=$PATHTOWAYF/favicon-fetcher
 
 # Javascript directory
-JSDIR="js"
+JSDIR=$PATHTOWAYF/js
 
 # Images directory
-IMAGESDIR="images"
+IMAGESDIR=$PATHTOWAYF/images
 
 # Execute Favicon-Fetcher
 php $FAVFETCHDIR/get-all-favicons-from-metadata-file.php $FAVFETCHDIR/idps-renater-metadata.xml
@@ -51,3 +52,5 @@ sed '$ s/.$//' $JSDIR/temp.js > $JSDIR/sprite_sheet_array.js
 rm $JSDIR/temp.js
 
 echo -n "];" >> $JSDIR/sprite_sheet_array.js
+
+exit 0

@@ -1,4 +1,4 @@
-<?php // Copyright (c) 2014, Université Paris 1 Panthéon Sorbonne ?>
+<?php // Copyright (c) 2014, SWITCH ?>
 <body>
 	<div id="wrap">
 
@@ -17,7 +17,7 @@
 			<div class="row">
 				<div id="col-co">
 					<!-- Block connexion au compte paris 1 -->
-					<?php if ($showFederationDiv) : ?>
+					<?php if ($showLocalIDPDiv) : ?>
 						<a class="nounderline" onclick="selectMyFederation()" href="#" >
 							<div id="div-co-myfederation" class="well">
 								<h3><?php echo $useMyFederationAccount ?><span class="glyphicon glyphicon-arrow-right pull-right"></span></h3>
@@ -25,12 +25,20 @@
 						</a>
 					<?php endif ?>
 					<div class="panel panel-default">
-						<a id="block-map" <?php if($isPanelFolded){ echo 'class="nounderline collapsed"';} else { echo 'class="nounderline"';} ?> data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+						<?php if ($isPanelFolded) : ?>
+							<a id="block-map" class="nounderline collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+						<?php else: ?>
+							<a id="block-map" class="nounderline" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+						<?php endif ?>
 							<div id="div-co-wayf" class="panel-heading" role="tab" id="headingOne">
 								<h3 class="panel-title"><?php echo $useOtherFederationAccount ?><span id="glyph-collapse" class="glyphicon glyphicon-chevron-down pull-right"></span></h3>
 							</div>
 						</a>
-						<div id="collapseOne" class="panel-collapse collapse <?php if(!$isPanelFolded){ echo "in";} ?>" role="tabpanel" aria-labelledby="headingOne">
+						<?php if ($isPanelFolded) : ?>
+							<div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+						<?php else: ?>
+							<div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+						<?php endif ?>
 							<div class="panel-body">
 								<div id="barreDeRecherche" class="input-group">
 									<label class="sr-only" for="recherche"><?php echo $searchBarText; ?></label>
@@ -67,7 +75,7 @@
 						<label>
 							<?php if ($showPermanentSetting) : ?>
 								<!-- Value permanent must be a number which is equivalent to the days the cookie should be valid -->
-								<input type="checkbox" name="permanent" id="rememberPermanent" value="100"><?php echo getLocalString('permanently_remember_selection') ?>
+								<input type="checkbox" onchange="toggleCheckbox(this)"><?php echo getLocalString('permanently_remember_selection') ?>
 							<?php endif ?>
 						</label>
 					</div>
@@ -83,14 +91,16 @@
 					<option value="-" <?php echo $defaultSelected ?>><?php echo getLocalString('select_idp') ?> ...</option>
 					<?php printDropDownList($IDProviders, $selectedIDP) ?>
 				</select>
+				<input type="checkbox" name="permanent" id="rememberPermanent" value="100"><?php echo getLocalString('permanently_remember_selection') ?>
 				<input id="form-button" type="submit" name="Select" accesskey="s" value="<?php echo getLocalString('select_button') ?>"> 
 			</div>
 		</div>
 	</form>
 
-	<script type="text/javascript" src="js/jquery-ui.min.js"></script>
-	<script type="text/javascript" src="js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="js/leaflet.js"></script>
-	<script type="text/javascript" src="js/leaflet.awesome-markers.js"></script>
-	<script type="text/javascript" src="js/sprite_sheet_array.js"></script>
-	<script type="text/javascript" src="js/wayf.js"></script>
+	<script type="text/javascript" src="Geo-SWITCHwayf/js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="Geo-SWITCHwayf/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="Geo-SWITCHwayf/js/leaflet.js"></script>
+	<script type="text/javascript" src="Geo-SWITCHwayf/js/leaflet.awesome-markers.js"></script>
+	<script type="text/javascript" src="Geo-SWITCHwayf/js/leaflet.markercluster.js"></script>
+	<script type="text/javascript" src="Geo-SWITCHwayf/js/sprite_sheet_array.js"></script>
+	<script type="text/javascript" src="Geo-SWITCHwayf/geo-SWITCHwayf.js"></script>

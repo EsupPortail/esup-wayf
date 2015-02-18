@@ -1,20 +1,37 @@
 // Copyright (c) 2014, Université Paris 1 Panthéon-Sorbonne
 
+/******************************************************************/
+//Variables de configuration
+
+// Nom de la fédération telle qu'elle apparait dans la liste des idp
+var myIDP = "";
+
+// Nom pour les comptes invités, tels qu'ils apparaissent dans la liste des idp
+var cru = "Comptes CRU";
+
+// Zoom pour la géolocalisation
+var startZoomGeo = 12;
+
+// valeurs à utiliser si la géolocalisation ne fonctionne pas et que les idp n'ont pas de géo data
+var startZoomDefault = 5;
+var coordsDefault = [46.830, 3.021];
+
+// Activate geolocation
+var isGeolocationEnabled = false;
+
+/*******************************************************************/
+
+var form = document.getElementById('IdPList');
+
 // Récupération du select qui contient les données
 var select = document.getElementById('userIdPSelection');
 
 // On masque le formulaire natif de SWITCH WAYF
-select.style.display = 'none';
+form.style.display = 'none';
 
 if ($('#form-button').length){
 	document.getElementById('form-button').style.display = 'none';
 }
-
-// Nom de la fédération telle qu'elle apparait dans la liste des idp
-var myIDP = "Université Paris 1 Panthéon-Sorbonne TEST";
-
-// Nom pour les comptes invités, tels qu'ils apparaissent dans la liste des idp
-var cru = "Comptes CRU";
 
 // Structure de donnée pour conserver les infos de chaque établissement
 var tabIDP = {};
@@ -42,12 +59,16 @@ function clickList(value){
 	$('#form-button').trigger('click');
 }
 
+// Coche la checkbox du formulaire quand la checkbox visible est cochée
+function toggleCheckbox(element){
+	var cb = document.getElementById('rememberPermanent');			
+	cb.checked = !cb.checked;
+}
+
 $(function(){
 
 	function initMap(){
-		// Adresse pour la carte sans passer par proxy
-		//http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png
-		L.tileLayer('map/{s}/{z}/{x}/{y}', {
+		L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
 			attribution: '&copy; Données cartographiques <a href="http://osm.org/copyright">OpenStreetMap</a>'
 		}).addTo(map);
 	};
@@ -70,7 +91,19 @@ $(function(){
 	};
 
 	function setDefaultView(){
-		map.setView(coordsDefault, startZoomDefault);
+		var tabLatLng = [];
+		$.each(tabRecherche, function(iteration){
+			if(tabIDP[tabRecherche[iteration]].marker){
+				tabLatLng.push(tabIDP[tabRecherche[iteration]].marker.getLatLng());
+			}
+		});
+		if (tabLatLng.length > 0){
+			var bounds = new L.LatLngBounds(tabLatLng);
+			map.fitBounds(bounds);
+		}
+		else {
+			map.setView(coordsDefault, startZoomDefault);
+		}
 	};
 
 	function moveToMarker(marker){
@@ -87,8 +120,7 @@ $(function(){
 	// Mise à jour de la liste par la carte
 	function updateDivGeo(){
 
-		map.removeLayer(searchMarkers);
-		map.addLayer(allMarkers);
+		markerLayer.clearLayers();
 
 		var tab = [];
 
@@ -96,6 +128,7 @@ $(function(){
 
 		for (var iteration in tabRecherche){
 			if (tabIDP[tabRecherche[iteration]] && tabIDP[tabRecherche[iteration]].URLShibboleth && tabIDP[tabRecherche[iteration]].marker){
+				markerLayer.addLayer(tabIDP[tabRecherche[iteration]].marker);
 				if (bounds.contains(tabIDP[tabRecherche[iteration]].marker.getLatLng())){
 					tab.push(tabRecherche[iteration]);
 				}
@@ -110,8 +143,7 @@ $(function(){
 
 		tabLatLng = [];
 
-		map.removeLayer(allMarkers);
-		searchMarkers.clearLayers();
+		markerLayer.clearLayers();
 
 		var div = $('#listeDynamique');
 		div.html('');
@@ -154,13 +186,13 @@ $(function(){
 
 				if (tabIDP[tab[iteration]] && tabIDP[tab[iteration]].URLShibboleth && tabIDP[tab[iteration]].marker){
 					tabLatLng.push(tabIDP[tab[iteration]].marker.getLatLng());
-					searchMarkers.addLayer(tabIDP[tab[iteration]].marker);
+					markerLayer.addLayer(tabIDP[tab[iteration]].marker);
 				}
 			});
 		}
 
 		if (tabLatLng.length > 0 && !isSearchingWithMap){
-			map.addLayer(searchMarkers);
+			map.addLayer(markerLayer);
 			var bounds = new L.LatLngBounds(tabLatLng);
 			map.fitBounds(bounds);
 		}
@@ -222,20 +254,27 @@ $(function(){
 		this.longitude = longitude;
 	};
 
-	var map = L.map('map');
+	// trackResize à false pour ne pas avoir de bug quand on redimmensionne l'écran avec le collapse plié
+	var map = L.map('map', {
+		trackResize: false
+	});
 
 	initMap();
 
 	// Tableau qui conserve les clefs pour accéder aux objets de tabIDP
 	var tabRecherche = [];
 
-	// Groupe qui contient tout les markers
-	var allMarkers = L.layerGroup();
-
-	// Groupe qui contient seulement les markers recherchés dans la barre
-	var searchMarkers = L.layerGroup();
-
-	var isPositionSet = false;
+	var markerLayer = L.markerClusterGroup({showCoverageOnHover : false, 
+											maxClusterRadius : 35,
+											disableClusteringAtZoom : 12,
+											iconCreateFunction: function(cluster){
+												return new L.AwesomeMarkers.icon({
+													icon: '',
+													markerColor: 'blue',
+													html: cluster.getChildCount()
+													});												
+											}
+										});
 
 	// La recherche ne prend pas en compte les accents.
 	var accentMap = {
@@ -251,12 +290,6 @@ $(function(){
 		icon: '<span class="icone" style="background-position: 0px 0px;"></span>',
 		markerColor: 'white'
 	});
-
-	var startZoomGeo = 12;
-
-	// valeurs à utiliser si la géolocalisation ne fonctionne pas
-	var startZoomDefault = 5;
-	var coordsDefault = [46.830, 3.021];
 
 	// Variable qui détermine si l'utilisateur interagit avec la carte ou avec la barre de recherche
 	var isSearchingWithMap = true;
@@ -298,7 +331,7 @@ $(function(){
 			markerColor: 'white'
 		});
 		tabIDP[selected.text].marker = L.marker([tabIDP[selected.text].latitude, tabIDP[selected.text].longitude], {icon: awesomeMarker});
-		allMarkers.addLayer(tabIDP[selected.text].marker);
+		markerLayer.addLayer(tabIDP[selected.text].marker);
 	}
 
 	else if (tabIDP[selected.text]){
@@ -310,13 +343,13 @@ $(function(){
 			});
 		}
 		else {
-				// Logo de renater pour les établissements qui n'ont pas de logo
+				// Logo par défault pour les établissements qui n'ont pas de logo
 				tabIDP[selected.text].logo = 0;
 			}
 
 			if (tabIDP[selected.text].latitude && tabIDP[selected.text].longitude){
 				tabIDP[selected.text].marker = L.marker([tabIDP[selected.text].latitude, tabIDP[selected.text].longitude], {icon: defaultMarker});
-				allMarkers.addLayer(tabIDP[selected.text].marker);
+				markerLayer.addLayer(tabIDP[selected.text].marker);
 			}
 		}
 
@@ -339,8 +372,12 @@ $(function(){
 
 	});
 
-	// Récupération des idp déja utilisés si il y'en a
-	if ($('#idPreviousIDP').length != 0){
+	// Variable pour savoir si le seul IDP présent dans le cookie est celui par défaut
+	var onlyMyIDP = ($('#userIdPSelection optgroup[id="idPreviousIDP"] option').length == 1 
+		&& $('#userIdPSelection optgroup[id="idPreviousIDP"] option:eq(0)').text() == myIDP);
+	
+	// Affiche les derniers IDP utilisés
+	if ($('#idPreviousIDP').length != 0 && !onlyMyIDP){
 
 		var div = $('<div/>')
 		.attr('id', 'divPreviousIDP');
@@ -349,6 +386,7 @@ $(function(){
 		.text($('#idPreviousIDP').attr("label") + " :");
 
 		h4.appendTo(div);
+
 		$.each($('#userIdPSelection optgroup[id="idPreviousIDP"] option'), function(i, value){
 
 			if (value.text != myIDP){
@@ -383,23 +421,24 @@ $(function(){
 		});
 
 		div.appendTo($('#div-co-wayf'));
+
 	}
 
-	allMarkers.addTo(map);
+	markerLayer.addTo(map);
 
 	// Si la carte est dépliée au chargement de la page, on affiche les infos
 	if ($('.collapsed').length == 0){
 		if ($('#map').css('display') == 'none'){
 			refreshListeDynamique(tabRecherche);
+			isSearchingWithMap = false;
 		}
 		else {
 			setDefaultView();
 
-			if (navigator.geolocation){
+			if (navigator.geolocation && isGeolocationEnabled){
 				navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
-
-			isPositionSet = true;
 			}
+			refreshListeDynamique(tabRecherche);
 		}
 	}
 
@@ -438,15 +477,13 @@ $(function(){
 			refreshListeDynamique(tabRecherche);
 			isSearchingWithMap = false;
 		}
-		else if (!isPositionSet) {
+		else {
 
 			setDefaultView();
 
-			if (navigator.geolocation){
+			if (navigator.geolocation && isGeolocationEnabled){
 				navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
 			}
-			isPositionSet = true;
-
 		}
 	});
 
@@ -458,20 +495,20 @@ $(function(){
 		}
 	});
 
+	// Fonction resize qui vérifie que l'utilisateur est bien accès à la carte, sinon on passe en mode recherche avec liste
 	$(window).resize(function(){
 		if ($('#map').css('display') == 'none'){
 			refreshListeDynamique(tabRecherche);
 			isSearchingWithMap = false;
 		}
-		// else if (isPositionSet && $('#map').css('display') == 'none') {
-		// 	console.log("caca");
-		// 	if (navigator.geolocation){
-		// 		navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
-		// 	}
-		// 	else {
-		// 		setDefaultView();
-		// 	}
-		// }
+		else {
+			if (navigator.geolocation && isGeolocationEnabled){
+				navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
+			}
+			else {
+				setDefaultView();
+			}
+		}
 	});
 
 	// Fermeture d'un popup quand la souri quitte le li
@@ -508,4 +545,3 @@ $(function(){
 		});
 
 });
-

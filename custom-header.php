@@ -1,4 +1,4 @@
-<?php // Copyright (c) 2014, Université Paris 1 Panthéon Sorbonne ?>
+<?php // Copyright (c) 2014, SWITCH ?>
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -9,10 +9,14 @@
 
 	<title><?php echo getLocalString('title') ?></title>
 
-	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
-	<link rel="stylesheet" type="text/css" href="css/leaflet.css" >
-	<link rel="stylesheet" type="text/css" href="css/leaflet.awesome-markers.css">
-	<link rel="stylesheet" type="text/css" href="css/styles.css">
+	<link rel="stylesheet" type="text/css" href="Geo-SWITCHwayf/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="Geo-SWITCHwayf/css/leaflet.css" >
+	<link rel="stylesheet" type="text/css" href="Geo-SWITCHwayf/css/leaflet.awesome-markers.css">
+	<link rel="stylesheet" type="text/css" href="Geo-SWITCHwayf/css/styles.css">
+	<link rel="stylesheet" type="text/css" href="Geo-SWITCHwayf/css/MarkerCluster.css">
+	<link rel="stylesheet" type="text/css" href="Geo-SWITCHwayf/css/MarkerCluster.Default.css">
+
+	<link rel="icon" type="image/png" href="Geo-SWITCHwayf/images/favicon.png">
 
  	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -21,5 +25,5 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="Geo-SWITCHwayf/js/jquery.js"></script>
 </head>

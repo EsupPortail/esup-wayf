@@ -1,0 +1,22 @@
+# Ignore les fichiers générés par les scripts et les fichiers XML de renater
+
+# Fichiers générés
+Geo-SWITCHwayf/discojuice/*.json
+Geo-SWITCHwayf/images/sprite_sheet.png
+Geo-SWITCHwayf/favicon-fetcher/idps-renater-metadata-logos/*
+Geo-SWITCHwayf/js/sprite_sheet_array.js
+IDProvider.metadata.php
+IDProvider-logos.conf.php
+SProvider.metadata.php
+
+
+# Fichiers XML
+renater-metadata.xml
+idps-renater-metadata.xml
+sps-renater-metadata.xml
+renater-test-metadata.xml
+
+
+# Fichier de config
+config.php
+

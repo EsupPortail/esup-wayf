@@ -1,7 +1,7 @@
-<?php // Copyright (c) 2013, SWITCH - Serving Swiss Universities ?>
+<?php // Copyright (c) 2014, SWITCH ?>
 
-	<footer class="footer">
-		<p style="margin: 0px;"><?php echo $myFederationCredits; ?><a href="about.html" target="_blank"><?php echo getLocalString('about_federation'); ?></a></p>
+	<footer id="footer">
+		<p style="margin: 0px;"><?php echo $myFederationCredits; ?><a href="Geo-SWITCHwayf/about.html" target="_blank"><?php echo getLocalString('about_federation'); ?></a></p>
 	</footer>
 
 </body>

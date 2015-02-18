@@ -162,14 +162,21 @@
 // Geo-SWITCHwayf configuration variables
 // *************************************
 
+// Set to true to use discoFeed to filter IDP
+//$useDiscoFeed = true;
+
 // Set to true to retrieve geolocation data for the IDP
 //$UseDiscojuiceGeolocation = true;
 
 // Set to true if you want the block my federation to appear
-//$showFederationDiv = true;
+//$showLocalIDPDiv = true;
+  // Shibboleth's ID for local IDP
+  // $LocalIDPID = "https://idp-test.univ-paris1.fr";
 
 // Set to true if you want the block CRU Account to appear
-//$showCRUAccountDiv = true;
+// $showCRUAccountDiv = true;
+  // Shibboleth's ID for CRU accounts
+  // $CRUID = "urn:mace:cru.fr:federation:sac";
 
 // Set to true if you want the idp search panel to be folded
 //$isPanelFolded = true;
