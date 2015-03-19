@@ -3,12 +3,6 @@
 /******************************************************************/
 //Variables de configuration
 
-// Nom de la fédération telle qu'elle apparait dans la liste des idp
-var myIDP = "";
-
-// Nom pour les comptes invités, tels qu'ils apparaissent dans la liste des idp
-var cru = "Comptes CRU";
-
 // Zoom pour la géolocalisation
 var startZoomGeo = 12;
 
@@ -41,15 +35,13 @@ var knownIDP = [];
 
 // Fonction qui se déclenche quand l'utilisateur sélectionne directement Paris 1
 function selectMyFederation(){
-	var myFederation =  tabIDP[myIDP];
-	select.value = myFederation.URLShibboleth;
+	select.value = myFederationShibURL;
 	$('#form-button').trigger('click');
 }
 
 // Fonction qui se déclenche quand l'utilisateur sélectionne les comptes CRU
 function selectCRU(){
-	var CRUAccounts = tabIDP[cru];
-	select.value = CRUAccounts.URLShibboleth;
+	select.value = CRUHShibURL;
 	$('#form-button').trigger('click');
 }
 
@@ -266,7 +258,6 @@ $(function(){
 
 	var markerLayer = L.markerClusterGroup({showCoverageOnHover : false, 
 											maxClusterRadius : 35,
-											disableClusteringAtZoom : 12,
 											iconCreateFunction: function(cluster){
 												return new L.AwesomeMarkers.icon({
 													icon: '',
@@ -313,10 +304,26 @@ $(function(){
 
 		// Récupération des logos
 		if (tabIDP[selected.text] && tabIDP[selected.text].donnees){
+			var logoFound = false;
 			for (var iteration in logos){
 				var dataSplit = tabIDP[selected.text].donnees.split('\ ');
 				if (dataSplit[0] == logos[iteration]){
 					tabIDP[selected.text].logo = -iteration*16-16;
+					logoFound = true;
+				}
+			}
+			if (!logoFound){
+				var regCROUS = new RegExp('CROUS', 'i');
+				if (regCROUS.test(selected.text)){
+					var foundCROUS = false
+					var i = 0;
+					while (i < logos.length && !foundCROUS){
+						if (regCROUS.test(logos[i])){
+							tabIDP[selected.text].logo = -i*16-16;
+							foundCROUS = true;
+						}
+						i++;
+					}
 				}
 			}
 		}
@@ -374,7 +381,7 @@ $(function(){
 
 	// Variable pour savoir si le seul IDP présent dans le cookie est celui par défaut
 	var onlyMyIDP = ($('#userIdPSelection optgroup[id="idPreviousIDP"] option').length == 1 
-		&& $('#userIdPSelection optgroup[id="idPreviousIDP"] option:eq(0)').text() == myIDP);
+		&& $('#userIdPSelection optgroup[id="idPreviousIDP"] option:eq(0)').val() == myFederationShibURL);
 	
 	// Affiche les derniers IDP utilisés
 	if ($('#idPreviousIDP').length != 0 && !onlyMyIDP){
@@ -389,7 +396,7 @@ $(function(){
 
 		$.each($('#userIdPSelection optgroup[id="idPreviousIDP"] option'), function(i, value){
 
-			if (value.text != myIDP){
+			if (value.value != myFederationShibURL){
 
 				var a = $('<a/>')
 				.text(value.text)

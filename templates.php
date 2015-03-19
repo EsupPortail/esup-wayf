@@ -135,7 +135,7 @@ function printSettings(){
 	
 	global $selectedIDP, $language, $IDProviders, $redirectCookieName;
 
-	global $showLocalIDPDiv, $showCRUAccountDiv, $isPanelFolded, $federationName;
+	global $showLocalIDPDiv, $showCRUAccountDiv, $isPanelFolded, $federationName, $LocalIDPID, $CRUID;
 
 	// Check if custom wayf variables are set in the URL
 	if (isset($_GET['showLocalIDPDiv'])){

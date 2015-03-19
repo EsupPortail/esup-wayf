@@ -474,7 +474,7 @@ if (
 	}
 
 	if ($useDiscoFeed) {
-		$discoFeed = discoFeed($_GET['entityID']);
+		$discoFeed = retrieveDiscoFeed($_GET['entityID']);
 	}
 	
 	// Show selection

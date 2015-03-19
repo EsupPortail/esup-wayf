@@ -1,42 +1,18 @@
-/* Charte graphique de Paris 1
-Bleu principal : #003C71;
-Bleu alternatif : #2E5693;
-Doré : #C99212;
-*/
-
 html, body {
   height: 100%;
-  min-width: 430px;
   -webkit-font-smoothing: antialiased;
   font: normal 10px arial,sans-serif;
 }
-
-
-/* Responsive logo */
 #header-logo {
   display: block;
-  width: 296px;
-  height: 105px;
-margin-bottom: 20px;
-margin-top: 20px;
+  width: 312px;
+  height: 136px;
+  margin-bottom: 20px;
+  margin-top: 20px;
 }
 
-@media only screen and (-webkit-max-device-pixel-ratio: 1.5),
- only screen and (-o-max-device-pixel-ratio: 3/2),
- only screen and (max--moz-device-pixel-ratio: 1.5),
- only screen and (max-device-pixel-ratio: 1.5) {
-  #header-logo {
-    background: url("../images/logo-univ-paris1.fr.png") no-repeat;
-  }
-}
-
-@media only screen and (-webkit-min-device-pixel-ratio: 1.5),
- only screen and (-o-min-device-pixel-ratio: 3/2),
- only screen and (min--moz-device-pixel-ratio: 1.5),
- only screen and (min-device-pixel-ratio: 1.5) {
-  #header-logo {
-    background-image: url("../images/logo-univ-paris1.fr@2x.png");
-    background-size: 296px 105px;
+#header-logo {
+    background: url("../images/esup-logo.png") no-repeat;
   }
 }
 
@@ -62,6 +38,7 @@ margin-top: 20px;
 /* Ordinateur de bureau */
 @media screen and (min-width: 992px) {
 	html, body {
+		min-width: 430px;
 		font-size: 14px;
 	}
 }
@@ -99,7 +76,8 @@ p {
 }
 
 #div-co-myfederation {
-	background-color: #003C71;
+	border: 0px;
+	background-color: #0A71B4;
 }
 
 #div-co-myfederation:hover {
@@ -112,14 +90,17 @@ p {
 
 .panel-title{
 	font-size: 1.8em;
+	color: #263F82;
 }
 
 .glyphicon-arrow-right {
-	color: #C99212;
+	color: #FFFFFF;
 }
 
 #div-co-wayf {
+	color: #00326e;
 	background-color: #F5F5F5;
+	padding: 15px;
 }
 
 #div-co-wayf:hover {
@@ -127,6 +108,7 @@ p {
 }
 
 #div-co-cru {
+	color: #00326e;
 	background-color: #FFFFFF;
 }
 
@@ -182,15 +164,11 @@ p {
 	padding-left: 15px;
 }
 
-.panel-title {
-	color: #263F82;
-}
-
-.footer, #wrap:after  {
+#footer, #wrap:after  {
 	height: 20px;
 }
 
-.footer {
+#footer {
 	text-align: center;
 }
 

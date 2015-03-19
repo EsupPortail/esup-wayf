@@ -97,6 +97,11 @@
 		</div>
 	</form>
 
+	<script type="text/javascript">
+		var myFederationShibURL = "<?php echo $LocalIDPID; ?>";
+		var CRUHShibURL = "<?php echo $CRUID; ?>";
+	</script>
+
 	<script type="text/javascript" src="Geo-SWITCHwayf/js/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="Geo-SWITCHwayf/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="Geo-SWITCHwayf/js/leaflet.js"></script>

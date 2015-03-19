@@ -79,9 +79,6 @@ if (!is_dir($directory) && !mkdir($directory)) {
 	die('Failed to create directory '.$directory );
 }
 
-//$fp = fopen('favicon-map.csv', 'w');
-$fp2 = fopen('IDProvider-logos.conf.php', 'w');
-fwrite($fp2, "<?php\n");
 
 // Include function getFavicon($url, $directory) to get favicon
 require_once('get-favicon-for-URL.php');
@@ -100,22 +97,16 @@ foreach ($metadataIDProviders as $entityID => $SSOURL){
 		if ($output[0] == 0){
 			echo "Done";
 			$result = $output[1];
-			$line = '$IDProviders[\''.$entityID.'\'][\'Logo\'][\'URL\'] = $base_URL.\''.$result.'\';';
-			
-			fwrite($fp2, $line."\n");
+
 		} else {
 			echo "Failed";
 		}
 		echo " (".$output[1].")\n";
 	}
 	
-	//fwrite($fp, $entityID."\t".$result."\n");
 	
 	$counter++;
 }
 
-fwrite($fp2, "?>");
 
-//fclose($fp);
-fclose($fp2);
 ?>

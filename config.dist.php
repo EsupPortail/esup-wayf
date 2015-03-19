@@ -165,6 +165,9 @@
 // Set to true to use discoFeed to filter IDP
 //$useDiscoFeed = true;
 
+// File where the parsed metadata from the discofeed is stored
+//$discofeedFile = 'discofeed.metadata.php';
+
 // Set to true to retrieve geolocation data for the IDP
 //$UseDiscojuiceGeolocation = true;
 

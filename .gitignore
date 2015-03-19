@@ -8,14 +8,10 @@ Geo-SWITCHwayf/js/sprite_sheet_array.js
 IDProvider.metadata.php
 IDProvider-logos.conf.php
 SProvider.metadata.php
-
+discofeed.metadata.php
 
 # Fichiers XML
-renater-metadata.xml
-idps-renater-metadata.xml
-sps-renater-metadata.xml
-renater-test-metadata.xml
-
+metadata.xml
 
 # Fichier de config
 config.php
