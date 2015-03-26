@@ -1,17 +1,17 @@
 GEO-SWITCHwayf documentation
 
-To install the software SWITCHwayf :
+## To install the software SWITCHwayf :
 
 - Documentation SWITCH : Refer to the file README
 - Documentation Renater : https://services.renater.fr/federation/docs/installation/sp_decembre2012#installation_d_un_service_de_decouverte
 
 
-Synopsis
+## Synopsis
 
 GEO-SWITCHwayf is based on the software SWITCHwayf v1.19.4. It is a custom theme that adds a map and locates the different identity providers on it. The user can select an IDP with the map or with a search field. It is possible to use Shibboleth's discofeed to filter the allowed IDP.
 
 
-Installation
+## Installation
 
 - Follow the instructions given by SWITCH to install SWITCHwayf v1.19.4
 - In config.php, configure the Geo-SWITCHwayf variables.
