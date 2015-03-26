@@ -9,6 +9,7 @@ esup-wayf documentation
 ## Synopsis
 
 esup-wayf is based on the software SWITCHwayf v1.19.4. It is a custom theme that adds a map and locates the different identity providers on it. The user can select an IDP with the map or with a search field. It is possible to use Shibboleth's discofeed to filter the allowed IDP.
+![esup-wayf](https://github.com/EsupPortail/esup-wayf/blob/master/images/wayf.png)
 
 
 ## Installation
