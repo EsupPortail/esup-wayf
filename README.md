@@ -15,6 +15,10 @@ esup-wayf is based on the software SWITCHwayf v1.19.4. It is a custom theme that
 ## Installation
 
 - Follow the instructions given by SWITCH to install SWITCHwayf v1.19.4
+- To display map add Apache directive : 
+```bash
+ProxyPassMatch /map/(.*)/(.*)/(.*)/(.*) http://$1.basemaps.cartocdn.com/light_all/$2/$3/$4.png
+```
 - In config.php, configure the esup-wayf variables.
 - Configure variables "myIDP" and "cru" in the file Geo-SWITCHwayf/geo-SWITCHwayf.js (Values need to be the same as those delivered by Shibboleth). You can also set the variable "isGeolocationEnabled" to true if you want the map to be set at the user's position.
 - You can adapt the colors and style in the file Geo-SWITCHwayf/css/style.css
