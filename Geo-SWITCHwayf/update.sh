@@ -1,37 +1,35 @@
 #!/bin/bash
-# To configure CRON : 
-# $ crontab -e
-# Add this line at the end of the file to execute the script every day at 4 am
-# 0 4 * * * /path-to-wayf/update-sprite-sheet.sh
 
-# Run this script in a CRON to update Geo-SWITCHwayf (XML files, geolocation hints and icones)
+# 2015 Paris 1 Panthéon-Sorbonne
 
-set -e
+# Script to update WAYF's metadata
+# Usage : ./update.sh <metadata_to_use>
+# Exemple : ./update.sh renater
 
-PATHtoWAYF=$1
+GEOWAYFDIR=$(dirname $0)
+PATHtoWAYF=$GEOWAYFDIR/..
 
-# Geo-SWITCHwayf directory
-GEOWAYFDIR=$PATHtoWAYF/Geo-SWITCHwayf
-
-if [ $# -ne 2 ]
+if [ $# -ne 1 ]
 	then
 	echo "Error"
-	echo "Usage : Parameter 1 : path to WAYF directory"
-	echo "Usage : Parameter 2 : Metadata to use (renater or renater-test)"
+	echo "Usage : Parameter : Federation to use (renater, renater-test, edugain (edugain + renater), edugain-test (edugain + renater-test))"
 	exit 1
 fi
 
-if [ $2 == "renater" ] 
-	then
-	metadataFile=https://federation.renater.fr/renater/renater-metadata.xml
-elif [ $2 == "renater-test" ]
-	then
-	metadataFile=https://federation.renater.fr/test/renater-test-metadata.xml
-else
+case $1 in
+    "renater")
+	url="https://federation.renater.fr/renater/idps-renater-metadata.xml";;
+    "renater-test")
+	url="https://federation.renater.fr/test/renater-test-metadata.xml";;
+    "edugain")
+	url="https://federation.renater.fr/edugain/idps-edugain-metadata.xml https://federation.renater.fr/renater/idps-renater-metadata.xml";;
+	"edugain-test")
+	url="https://federation.renater.fr/edugain/idps-edugain-metadata.xml https://federation.renater.fr/test/renater-test-metadata.xml";;
+    *)
 	echo "Error"
-	echo "Unknown federation, please update this script"
-	exit 1
-fi
+        echo "Unknown federation, please update this script"
+        exit 1;;
+esac
 
 # Check if a temp directory exists
 if [ ! -d $PATHtoWAYF/tmp ]
@@ -39,24 +37,54 @@ if [ ! -d $PATHtoWAYF/tmp ]
 	mkdir $PATHtoWAYF/tmp
 fi
 
-# Download renater metadata in a temp directory
-wget --no-check-certificate $metadataFile -O $PATHtoWAYF/tmp/metadata.xml
-sleep 5;
+# Download metadata
+echo "Downloading metadata..."
+fileCount=0
+for xmlFile in $url
+do
+	echo "Downloading $xmlFile"
+	fileCount=$((fileCount+1))
+	wget --quiet --no-check-certificate $xmlFile -O $PATHtoWAYF/tmp/$fileCount.xml
+	cat $PATHtoWAYF/tmp/$fileCount.xml >> $PATHtoWAYF/tmp/tempXML.xml
+	echo -e "\n" >> $PATHtoWAYF/tmp/tempXML.xml
+	rm $PATHtoWAYF/tmp/$fileCount.xml
+	sleep 3;
+done
+
+if [ $fileCount -gt 1 ]
+	then
+	sed -i 's/Signature>/Signature>\n/g' $PATHtoWAYF/tmp/tempXML.xml
+	sed -i '/<\/md:EntitiesDescriptor>/,/<\/ds:Signature>/d' $PATHtoWAYF/tmp/tempXML.xml
+	sed -i 's/<\/EntitiesDescriptor>//g' $PATHtoWAYF/tmp/tempXML.xml
+	echo "</md:EntitiesDescriptor>" >> $PATHtoWAYF/tmp/tempXML.xml
+	sleep 2;
+fi
+
+echo "Checking if XML file is well-formed"
+xmllint --noout $PATHtoWAYF/tmp/tempXML.xml
+if [ $? -ne 0 ]
+	then
+	echo "Error : XML file is corrupted. Exiting."
+	rm $PATHtoWAYF/tmp/tempXML.xml
+	exit 1
+else
+	mv $PATHtoWAYF/tmp/tempXML.xml $PATHtoWAYF/tmp/metadata.xml
+fi
 
 # Update geolocation hints
 echo "Updating discojuice geolocation hints..."
-$GEOWAYFDIR/discojuice/update-discojuice.sh
+$GEOWAYFDIR/discojuice/update-discojuice.sh > /dev/null
 
 # Refresh WAYF's discofeed
 echo "Updating discofeed..."
-php $GEOWAYFDIR/discofeed/get-discofeed-from-array.php $PATHtoWAYF/discofeed.metadata.php
+php $GEOWAYFDIR/discofeed/get-discofeed-from-array.php $PATHtoWAYF/discofeed.metadata.php > /dev/null
 
 # Update wayf's metadata
 echo "Updating WAYF's metadata..."
-php $PATHtoWAYF/readMetadata.php
+php $PATHtoWAYF/readMetadata.php > /dev/null
 
 # Update icones and sprite sheet
 echo "Updating icones and sprite sheet..."
-$GEOWAYFDIR/favicon-fetcher/update-sprite-sheet.sh $GEOWAYFDIR
+$GEOWAYFDIR/favicon-fetcher/update-sprite-sheet.sh
 
 exit 0
