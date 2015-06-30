@@ -84,7 +84,7 @@
 		</div>
 	</div>
 
-	<form id="IdPList" name="IdPList" method="post" action="<?php echo $actionURL ?>">
+	<form id="IdPList" name="IdPList" method="post" action="<?php echo $actionURL ?>" style="display:none;">
 		<div id="userInputArea">
 			<div>
 				<select name="user_idp" id="userIdPSelection"> 
