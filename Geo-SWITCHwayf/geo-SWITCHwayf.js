@@ -1,57 +1,39 @@
 // Copyright (c) 2014, Université Paris 1 Panthéon-Sorbonne
+// geo-SWITCHwayf.js
 
 /******************************************************************/
-//Variables de configuration
-
-// Zoom pour la géolocalisation
-var startZoomGeo = 12;
-
-// valeurs à utiliser si la géolocalisation ne fonctionne pas et que les idp n'ont pas de géo data
+// Variables to configure if IDPs have no geolocation data
+// This configuration focus on France
 var startZoomDefault = 5;
 var coordsDefault = [46.830, 3.021];
 
-// Activate geolocation
-var isGeolocationEnabled = false;
-
 /*******************************************************************/
 
-var form = document.getElementById('IdPList');
-
-// Récupération du select qui contient les données
 var select = document.getElementById('userIdPSelection');
-
-// On masque le formulaire natif de SWITCH WAYF
-form.style.display = 'none';
 
 if ($('#form-button').length){
 	document.getElementById('form-button').style.display = 'none';
 }
 
-// Structure de donnée pour conserver les infos de chaque établissement
 var tabIDP = {};
 
-// Tableau pour les IDP qui ont déjà été visité par l'utilisateur
 var knownIDP = [];
 
-// Fonction qui se déclenche quand l'utilisateur sélectionne directement Paris 1
 function selectMyFederation(){
 	select.value = myFederationShibURL;
 	$('#form-button').trigger('click');
 }
 
-// Fonction qui se déclenche quand l'utilisateur sélectionne les comptes CRU
 function selectCRU(){
 	select.value = CRUHShibURL;
 	$('#form-button').trigger('click');
 }
 
-// Fonction qui se déclenche quand on clique sur un item de la liste dynamique
 function clickList(value){
 	select.value = value;
 	$('#form-button').trigger('click');
 }
 
-// Coche la checkbox du formulaire quand la checkbox visible est cochée
 function toggleCheckbox(element){
 	var cb = document.getElementById('rememberPermanent');			
 	cb.checked = !cb.checked;
@@ -65,7 +47,6 @@ $(function(){
 		}).addTo(map);
 	};
 
-	// Fonction qui permet de gérer les pbm d'accents dans la barre de recherche
 	var normalize = function( term ) {
 		var ret = "";
 		for ( var i = 0; i < term.length; i++ ) {
@@ -74,21 +55,15 @@ $(function(){
 		return ret;
 	};
 
-	function successCallback(position){
-		map.setView([position.coords.latitude, position.coords.longitude], startZoomGeo);
-	};  
-
-	function errorCallback(error){
-		setDefaultView();
-	};
-
 	function setDefaultView(){
 		var tabLatLng = [];
-		$.each(tabRecherche, function(iteration){
-			if(tabIDP[tabRecherche[iteration]].marker){
-				tabLatLng.push(tabIDP[tabRecherche[iteration]].marker.getLatLng());
+		
+		for (var idp in tabIDP){
+			if(tabIDP[idp].marker){
+				tabLatLng.push(tabIDP[idp].marker.getLatLng());
 			}
-		});
+		}
+
 		if (tabLatLng.length > 0){
 			var bounds = new L.LatLngBounds(tabLatLng);
 			map.fitBounds(bounds);
@@ -102,15 +77,7 @@ $(function(){
 		map.panTo(tabIDP[marker].marker.getLatLng(), {animation: true, duration: 1.0, easeLinearity: 0.25});
 	};
 
-	// 10 fois plus rapide que de faire tab = [];
-	function resetTab(tab){
-		while (tab.length){
-			tab.pop();
-		}
-	};
-
-	// Mise à jour de la liste par la carte
-	function updateDivGeo(){
+	function updateMap(){
 
 		markerLayer.clearLayers();
 
@@ -118,29 +85,29 @@ $(function(){
 
 		var bounds = map.getBounds();
 
-		for (var iteration in tabRecherche){
-			if (tabIDP[tabRecherche[iteration]] && tabIDP[tabRecherche[iteration]].URLShibboleth && tabIDP[tabRecherche[iteration]].marker){
-				markerLayer.addLayer(tabIDP[tabRecherche[iteration]].marker);
-				if (bounds.contains(tabIDP[tabRecherche[iteration]].marker.getLatLng())){
-					tab.push(tabRecherche[iteration]);
+		for (var idp in tabIDP){
+			if (tabIDP[idp].marker){
+				markerLayer.addLayer(tabIDP[idp].marker);
+				if (bounds.contains(tabIDP[idp].marker.getLatLng())){
+					tab.push(idp);
 				}
 			}
 		}
 
-		refreshListeDynamique(tab);
+		updateSideList(tab, "map");
 	};
 
-	// Mise à jour de la liste par la barre de recherche
-	function updateDivSearchBar(tab){
+	function updateSideList(IDPtoDisplay, source){
 
-		tabLatLng = [];
-
-		markerLayer.clearLayers();
+		if (source === "searchBar"){
+			var tabLatLng = [];
+			markerLayer.clearLayers();
+		}
 
 		var div = $('#listeDynamique');
 		div.html('');
 
-		if (tab.length == 0){
+		if (IDPtoDisplay.length == 0){
 			var p = $('<p/>')
 			.text('Aucun résultat.')
 			.addClass('text-center')
@@ -150,64 +117,7 @@ $(function(){
 
 		else {
 
-			$.each(tab, function(iteration){
-
-				if (tabIDP[tab[iteration]] && tabIDP[tab[iteration]].URLShibboleth){
-
-					var li = $('<li/>')
-					.addClass('ui-menu-item')
-					.attr('role', 'menuitem')
-					.appendTo(div);
-
-					var a = $('<a/>')
-					.addClass('ui-all')
-					.text(tab[iteration])
-					.attr('href', '#')
-					.click(function(){
-						clickList(tabIDP[tab[iteration]].URLShibboleth);
-					})
-					.appendTo(li);
-
-					var icone = $('<span/>')
-					.addClass('icone ui-icone')
-					.css("background-position", tabIDP[tab[iteration]].logo + "px 0px")
-					.css("margin-right", "10px")
-					.css("vertical-align", "sub")
-					.prependTo(a);
-				}
-
-				if (tabIDP[tab[iteration]] && tabIDP[tab[iteration]].URLShibboleth && tabIDP[tab[iteration]].marker){
-					tabLatLng.push(tabIDP[tab[iteration]].marker.getLatLng());
-					markerLayer.addLayer(tabIDP[tab[iteration]].marker);
-				}
-			});
-		}
-
-		if (tabLatLng.length > 0 && !isSearchingWithMap){
-			map.addLayer(markerLayer);
-			var bounds = new L.LatLngBounds(tabLatLng);
-			map.fitBounds(bounds);
-		}
-
-	};
-
-	// Crée la liste d'établissements avec les données du tableau passé en paramètre
-	function refreshListeDynamique(tab){
-
-		var div = $('#listeDynamique');
-		div.html('');
-
-		if (tab.length == 0){
-			var p = $('<p/>')
-			.text('Aucun résultat.')
-			.addClass('text-center')
-			.css('margin-top', '15px')
-			.appendTo(div);
-		}
-
-		else {
-
-			$.each(tab, function(iteration){
+			for (var idp in IDPtoDisplay){
 
 				var li = $('<li/>')
 				.addClass('ui-menu-item')
@@ -216,21 +126,31 @@ $(function(){
 
 				var a = $('<a/>')
 				.addClass('ui-all')
-				.text(tab[iteration])
+				.text(IDPtoDisplay[idp])
 				.attr('href', '#')
 				.click(function(){
-					clickList(tabIDP[tab[iteration]].URLShibboleth);
+					clickList(tabIDP[IDPtoDisplay[idp]].URLShibboleth);
 				})
 				.appendTo(li);
 
 				var icone = $('<span/>')
 				.addClass('icone ui-icone')
-				.css("background-position", tabIDP[tab[iteration]].logo + "px 0px")
+				.css("background-position", tabIDP[IDPtoDisplay[idp]].logo + "px 0px")
 				.css("margin-right", "10px")
 				.css("vertical-align", "sub")
 				.prependTo(a);
 
-			});
+				if (source === "searchBar" && tabIDP[IDPtoDisplay[idp]].marker){
+					tabLatLng.push(tabIDP[IDPtoDisplay[idp]].marker.getLatLng());
+					markerLayer.addLayer(tabIDP[IDPtoDisplay[idp]].marker);
+				}
+			}
+		}
+
+		if (source === "searchBar" && tabLatLng.length > 0){
+			map.addLayer(markerLayer);
+			var bounds = new L.LatLngBounds(tabLatLng);
+			map.fitBounds(bounds);
 		}
 	};
 
@@ -246,15 +166,11 @@ $(function(){
 		this.longitude = longitude;
 	};
 
-	// trackResize à false pour ne pas avoir de bug quand on redimmensionne l'écran avec le collapse plié
 	var map = L.map('map', {
 		trackResize: false
 	});
 
 	initMap();
-
-	// Tableau qui conserve les clefs pour accéder aux objets de tabIDP
-	var tabRecherche = [];
 
 	var markerLayer = L.markerClusterGroup({showCoverageOnHover : false, 
 											maxClusterRadius : 35,
@@ -267,25 +183,32 @@ $(function(){
 											}
 										});
 
-	// La recherche ne prend pas en compte les accents.
 	var accentMap = {
 		"é" : "e",
 		"è" : "e",
 		"à" : "a",
-		"ê" : "a",
+		"ê" : "e",
 		"ç" : "c"
 	}
 
-	// Icone de Renater par défaut pour les établissements qui n'ont pas de favicon
 	var defaultMarker = L.AwesomeMarkers.icon({
 		icon: '<span class="icone" style="background-position: 0px 0px;"></span>',
 		markerColor: 'white'
 	});
 
-	// Variable qui détermine si l'utilisateur interagit avec la carte ou avec la barre de recherche
 	var isSearchingWithMap = true;
 
-	// Récupération des infos du select
+	var regCROUS = /CROUS/i;
+	function fetchDefaultLogoCROUS(){
+		for (logo in logo_to_x) {
+			if (regCROUS.test(logo)) {
+				return -logo_to_x[logo]*16-16;
+			}
+		}
+	};
+
+	var defaultCROUSLogo = fetchDefaultLogoCROUS();
+	
 	$.each($('#userIdPSelection optgroup[id="idpList"] option'), function(i, selected){
 
 		var nIDP;
@@ -294,42 +217,24 @@ $(function(){
 			nIDP = new IDP(selected.value, selected.getAttribute('data'), selected.getAttribute('data-lat'),
 				selected.getAttribute('data-lon'));
 			tabIDP[selected.text] = nIDP;
-			tabRecherche.push(selected.text);
 		}
 		else if (selected.getAttribute('data')){
 			nIDP = new IDP(selected.value, selected.getAttribute('data'));
 			tabIDP[selected.text] = nIDP;
-			tabRecherche.push(selected.text);
 		}
 
-		// Récupération des logos
 		if (tabIDP[selected.text] && tabIDP[selected.text].donnees){
-			var logoFound = false;
-			for (var iteration in logos){
-				var dataSplit = tabIDP[selected.text].donnees.split('\ ');
-				if (dataSplit[0] == logos[iteration]){
-					tabIDP[selected.text].logo = -iteration*16-16;
-					logoFound = true;
-				}
-			}
-			if (!logoFound){
-				var regCROUS = new RegExp('CROUS', 'i');
-				if (regCROUS.test(selected.text)){
-					var foundCROUS = false
-					var i = 0;
-					while (i < logos.length && !foundCROUS){
-						if (regCROUS.test(logos[i])){
-							tabIDP[selected.text].logo = -i*16-16;
-							foundCROUS = true;
-						}
-						i++;
-					}
-				}
+			var m = tabIDP[selected.text].donnees.match(/\S+/);
+			var word = m && m[0];
+			var x = logo_to_x[word];
+			if (x){
+				tabIDP[selected.text].logo = -x*16-16;
+			} 
+			else if (regCROUS.test(selected.text)) {
+				tabIDP[selected.text].logo = defaultCROUSLogo;
 			}
 		}
 
-		// Placement des marqueurs sur la carte
-		// On vérifie que les objets on toutes les infos nécessaires pour être placé sur la carte
 		if (tabIDP[selected.text] && tabIDP[selected.text].latitude
 			&& tabIDP[selected.text].longitude && tabIDP[selected.text].logo){
 			var stringIcone = '<span class="icone" style="background-position: '+ tabIDP[selected.text].logo +'px 0px;"></span>';
@@ -350,7 +255,6 @@ $(function(){
 			});
 		}
 		else {
-				// Logo par défault pour les établissements qui n'ont pas de logo
 				tabIDP[selected.text].logo = 0;
 			}
 
@@ -360,7 +264,6 @@ $(function(){
 			}
 		}
 
-		// Configuration des events et des popups pour les marqueurs
 		if (tabIDP[selected.text] && tabIDP[selected.text].marker){
 
 			var popup = L.popup({autoPan: false}).setContent(selected.text);
@@ -378,12 +281,10 @@ $(function(){
 		}
 
 	});
-
-	// Variable pour savoir si le seul IDP présent dans le cookie est celui par défaut
+	
 	var onlyMyIDP = ($('#userIdPSelection optgroup[id="idPreviousIDP"] option').length == 1 
 		&& $('#userIdPSelection optgroup[id="idPreviousIDP"] option:eq(0)').val() == myFederationShibURL);
 	
-	// Affiche les derniers IDP utilisés
 	if ($('#idPreviousIDP').length != 0 && !onlyMyIDP){
 
 		var div = $('<div/>')
@@ -433,122 +334,95 @@ $(function(){
 
 	markerLayer.addTo(map);
 
-	// Si la carte est dépliée au chargement de la page, on affiche les infos
 	if ($('.collapsed').length == 0){
 		if ($('#map').css('display') == 'none'){
-			refreshListeDynamique(tabRecherche);
+			updateSideList(Object.keys(tabIDP), "map");
 			isSearchingWithMap = false;
 		}
 		else {
 			setDefaultView();
-
-			if (navigator.geolocation && isGeolocationEnabled){
-				navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
-			}
-			refreshListeDynamique(tabRecherche);
+			updateSideList(Object.keys(tabIDP), "map");
 		}
 	}
 
-	// Actualisation des informations dans le div quand l'utilisateur déplace la carte
-	map.on('moveend', function() {
-		if (isSearchingWithMap){
-			updateDivGeo();
+	map.on('mousedown moveend', function(e) {
+		if (e.type === 'mousedown'){
+			isSearchingWithMap = true;
+		}
+		else {
+			if (isSearchingWithMap){
+				updateMap();
+			}
 		}
 	});
-
 	
-	map.on('mousedown', function(){
-		isSearchingWithMap = true;
-	});
-
-
-	// Ouverture d'un popup quand mouseover dans la liste
-	$('#listeDynamique').mouseover(function(event){
+	$('#listeDynamique')
+	.mouseover(function(event){
 		if (tabIDP[event.target.text] && tabIDP[event.target.text].marker){
 			tabIDP[event.target.text].marker.openPopup();
 		}
-	});
-
-	$('#collapseOne').on('hide.bs.collapse', function () {
-		$('#glyph-collapse').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
-	});
-
-	$('#collapseOne').on('show.bs.collapse', function () {
-		$('#glyph-collapse').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
-	});
-
-	// Il faut attendre la fin de la transition collapse pour placer la vue
-	$('#collapseOne').on('shown.bs.collapse', function () {
-		// Si la carte n'est pas visible (sur téléphone par exemple)
-		if ($('#map').css('display') == 'none'){
-			refreshListeDynamique(tabRecherche);
-			isSearchingWithMap = false;
-		}
-		else {
-
-			setDefaultView();
-
-			if (navigator.geolocation && isGeolocationEnabled){
-				navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
-			}
-		}
-	});
-
-	// Si la barre de recherche est vide, on affiche toute les propositions
-	$("#recherche").focus(function() {
-		if (this.value == ''){
-			isSearchingWithMap = false;
-			updateDivSearchBar(tabRecherche);
-		}
-	});
-
-	// Fonction resize qui vérifie que l'utilisateur est bien accès à la carte, sinon on passe en mode recherche avec liste
-	$(window).resize(function(){
-		if ($('#map').css('display') == 'none'){
-			refreshListeDynamique(tabRecherche);
-			isSearchingWithMap = false;
-		}
-		else {
-			if (navigator.geolocation && isGeolocationEnabled){
-				navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
-			}
-			else {
-				setDefaultView();
-			}
-		}
-	});
-
-	// Fermeture d'un popup quand la souri quitte le li
-	$('#listeDynamique').mouseout(function(event){
+	})
+	.mouseout(function(event){
 		if (tabIDP[event.target.text] && tabIDP[event.target.text].marker){
 			tabIDP[event.target.text].marker.closePopup();
 		}
 	});
 
-	// Gere l'actulisation de la carte et de la liste quand on fait une recherche
-	$( "#recherche" ).autocomplete({
+
+	$('#collapseOne').on('shown.bs.collapse show.bs.collapse hide.bs.collapse', function(e){
+		switch(e.type){
+		case 'shown':
+			if ($('#map').css('display') == 'none'){
+				updateSideList(Object.keys(tabIDP), "map");
+				isSearchingWithMap = false;
+			}
+			else {
+				setDefaultView();
+			}
+			break;
+		case 'show':
+			$('#glyph-collapse').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+			break;
+		case 'hide':
+			$('#glyph-collapse').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+			break;
+		}
+	});
+	
+	$("#recherche")
+	.focus(function() {
+		if (this.value == ''){
+			isSearchingWithMap = false;
+			updateSideList(Object.keys(tabIDP), "searchBar");
+		}
+	})
+	
+	.autocomplete({
 		minLength: 0,
 		source: function( request, response ) {
 			isSearchingWithMap = false;
 			var tabMatcher = [];
-			var tabRequete = request.term.split('\ ');
-
+			var tabRequete = request.term.split(/ /);
 			for (var iteration in tabRequete){
-				tabMatcher.push(new RegExp( $.ui.autocomplete.escapeRegex(normalize(tabRequete[iteration])), "i" ));
+				tabMatcher.push(new RegExp("^" + $.ui.autocomplete.escapeRegex(normalize(tabRequete[iteration])), "i" ));
 			}
 
-			response( updateDivSearchBar($.grep( tabRecherche, function( text ) {
-				// Recherche par mot et pas par substring
-				var correct = true;
-				$.each(tabMatcher, function(iteration){
-					if (!tabMatcher[iteration].test(normalize(text))){
-						correct = false;
+			response( updateSideList($.grep( Object.keys(tabIDP), function( text ) {
+
+				var textSplited = text.split(/-| /);
+				for (var matcher in tabMatcher){
+					var hasMatched = false;
+					for (var word in textSplited){
+						if (tabMatcher[matcher].test(normalize(textSplited[word]))){
+							hasMatched = true;
+						}
 					}
-				});
-				return correct && tabIDP[text];
-			}
-
-			)))}
+					if (hasMatched === false){
+						return false;
+					}	
+				}
+				return true;
+			}),
+			"searchBar"))}
 		});
-
 });
