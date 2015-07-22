@@ -22,9 +22,7 @@ case $1 in
     "renater-test")
 	url="https://federation.renater.fr/test/renater-test-metadata.xml";;
     "edugain")
-	url="https://federation.renater.fr/edugain/idps-edugain-metadata.xml https://federation.renater.fr/renater/idps-renater-metadata.xml";;
-	"edugain-test")
-	url="https://federation.renater.fr/edugain/idps-edugain-metadata.xml https://federation.renater.fr/test/renater-test-metadata.xml";;
+	url="https://federation.renater.fr/edugain/idps-edugain+renater+sac-metadata.xml";;
     *)
 	echo "Error"
         echo "Unknown federation, please update this script"
@@ -39,36 +37,16 @@ fi
 
 # Download metadata
 echo "Downloading metadata..."
-fileCount=0
-for xmlFile in $url
-do
-	echo "Downloading $xmlFile"
-	fileCount=$((fileCount+1))
-	wget --quiet --no-check-certificate $xmlFile -O $PATHtoWAYF/tmp/$fileCount.xml
-	cat $PATHtoWAYF/tmp/$fileCount.xml >> $PATHtoWAYF/tmp/tempXML.xml
-	echo -e "\n" >> $PATHtoWAYF/tmp/tempXML.xml
-	rm $PATHtoWAYF/tmp/$fileCount.xml
-	sleep 3;
-done
-
-if [ $fileCount -gt 1 ]
-	then
-	sed -i 's/Signature>/Signature>\n/g' $PATHtoWAYF/tmp/tempXML.xml
-	sed -i '/<\/md:EntitiesDescriptor>/,/<\/ds:Signature>/d' $PATHtoWAYF/tmp/tempXML.xml
-	sed -i 's/<\/EntitiesDescriptor>//g' $PATHtoWAYF/tmp/tempXML.xml
-	echo "</md:EntitiesDescriptor>" >> $PATHtoWAYF/tmp/tempXML.xml
-	sleep 2;
-fi
+wget --quiet --no-check-certificate $url -O $PATHtoWAYF/tmp/metadata.xml
+sleep 3;
 
 echo "Checking if XML file is well-formed"
-xmllint --noout $PATHtoWAYF/tmp/tempXML.xml
+xmllint --noout $PATHtoWAYF/tmp/metadata.xml
 if [ $? -ne 0 ]
 	then
 	echo "Error : XML file is corrupted. Exiting."
-	rm $PATHtoWAYF/tmp/tempXML.xml
+	rm $PATHtoWAYF/tmp/metadata.xml
 	exit 1
-else
-	mv $PATHtoWAYF/tmp/tempXML.xml $PATHtoWAYF/tmp/metadata.xml
 fi
 
 # Update geolocation hints
