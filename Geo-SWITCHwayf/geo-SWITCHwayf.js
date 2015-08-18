@@ -135,10 +135,17 @@ $(function(){
 
 				var icone = $('<span/>')
 				.addClass('icone ui-icone')
-				.css("background-position", tabIDP[IDPtoDisplay[idp]].logo + "px 0px")
 				.css("margin-right", "10px")
 				.css("vertical-align", "sub")
-				.prependTo(a);
+
+				if (tabIDP[IDPtoDisplay[idp]].logo){
+					icone.css("background", "url(" + tabIDP[IDPtoDisplay[idp]].logo + ")");
+				}
+				else {
+					icone.css("background-position", tabIDP[IDPtoDisplay[idp]].logoPos + "px 0px");
+				}
+
+				icone.prependTo(a);
 
 				if (source === "searchBar" && tabIDP[IDPtoDisplay[idp]].marker){
 					tabLatLng.push(tabIDP[IDPtoDisplay[idp]].marker.getLatLng());
@@ -157,13 +164,6 @@ $(function(){
 	function IDP(URLShibboleth, donnees){
 		this.URLShibboleth = URLShibboleth;
 		this.donnees = donnees;
-	};
-
-	function IDP(URLShibboleth, donnees, latitude, longitude){
-		this.URLShibboleth = URLShibboleth;
-		this.donnees = donnees;
-		this.latitude = latitude;
-		this.longitude = longitude;
 	};
 
 	var map = L.map('map', {
@@ -199,7 +199,7 @@ $(function(){
 	var isSearchingWithMap = true;
 
 	var regCROUS = /CROUS/i;
-	function fetchDefaultLogoCROUS(){
+	var defaultCROUSLogo = function fetchDefaultLogoCROUS(){
 		for (logo in logo_to_x) {
 			if (regCROUS.test(logo)) {
 				return -logo_to_x[logo]*16-16;
@@ -207,64 +207,65 @@ $(function(){
 		}
 	};
 
-	var defaultCROUSLogo = fetchDefaultLogoCROUS();
+	 //fetchDefaultLogoCROUS();
 	
 	$.each($('#userIdPSelection optgroup[id="idpList"] option'), function(i, selected){
 
 		var nIDP;
 
-		if (selected.getAttribute('data-lat') && selected.getAttribute('data-lon') && selected.getAttribute('data')){
-			nIDP = new IDP(selected.value, selected.getAttribute('data'), selected.getAttribute('data-lat'),
-				selected.getAttribute('data-lon'));
-			tabIDP[selected.text] = nIDP;
-		}
-		else if (selected.getAttribute('data')){
+		if (selected.getAttribute('data')){
 			nIDP = new IDP(selected.value, selected.getAttribute('data'));
 			tabIDP[selected.text] = nIDP;
 		}
-
-		if (tabIDP[selected.text] && tabIDP[selected.text].donnees){
-			var m = tabIDP[selected.text].donnees.match(/\S+/);
-			var word = m && m[0];
-			var x = logo_to_x[word];
-			if (x){
-				tabIDP[selected.text].logo = -x*16-16;
-			} 
-			else if (regCROUS.test(selected.text)) {
-				tabIDP[selected.text].logo = defaultCROUSLogo;
-			}
+		else {
+			return true;
 		}
 
-		if (tabIDP[selected.text] && tabIDP[selected.text].latitude
-			&& tabIDP[selected.text].longitude && tabIDP[selected.text].logo){
-			var stringIcone = '<span class="icone" style="background-position: '+ tabIDP[selected.text].logo +'px 0px;"></span>';
-		var awesomeMarker = L.AwesomeMarkers.icon({
-			icon: stringIcone,
-			markerColor: 'white'
-		});
-		tabIDP[selected.text].marker = L.marker([tabIDP[selected.text].latitude, tabIDP[selected.text].longitude], {icon: awesomeMarker});
-		markerLayer.addLayer(tabIDP[selected.text].marker);
-	}
+		if (selected.getAttribute('data-lat') && selected.getAttribute('data-lon')){
+			tabIDP[selected.text].latitude = selected.getAttribute('data-lat');
+			tabIDP[selected.text].longitude = selected.getAttribute('data-lon');
+			tabIDP[selected.text].isGeo = true;
+		}
 
-	else if (tabIDP[selected.text]){
-		if (tabIDP[selected.text].logo){
-			var stringIcone = '<span class="icone" style="background-position: '+ tabIDP[selected.text].logo +'px 0px;"></span>';
+		if (selected.getAttribute('logo') && selected.getAttribute('logo').match("base64")){
+			tabIDP[selected.text].logo = selected.getAttribute('logo');
+			var stringIcone = '<span class="icone" style="background: url('+ tabIDP[selected.text].logo +')"></span>';
 			var awesomeMarker = L.AwesomeMarkers.icon({
 				icon: stringIcone,
 				markerColor: 'white'
 			});
 		}
 		else {
-				tabIDP[selected.text].logo = 0;
-			}
-
-			if (tabIDP[selected.text].latitude && tabIDP[selected.text].longitude){
-				tabIDP[selected.text].marker = L.marker([tabIDP[selected.text].latitude, tabIDP[selected.text].longitude], {icon: defaultMarker});
-				markerLayer.addLayer(tabIDP[selected.text].marker);
+			var m = tabIDP[selected.text].donnees.match(/\S+/);
+			var word = m && m[0];
+			var x = logo_to_x[word];
+			if (x){
+				tabIDP[selected.text].logoPos = -x*16-16;
+			} 
+			else if (regCROUS.test(selected.text)) {
+				tabIDP[selected.text].logoPos = defaultCROUSLogo;
 			}
 		}
 
-		if (tabIDP[selected.text] && tabIDP[selected.text].marker){
+		if (tabIDP[selected.text].logoPos){
+			var stringIcone = '<span class="icone" style="background-position: '+ tabIDP[selected.text].logoPos +'px 0px;"></span>';
+			var awesomeMarker = L.AwesomeMarkers.icon({
+				icon: stringIcone,
+				markerColor: 'white'
+			});
+		}
+
+		if (tabIDP[selected.text].isGeo) {
+			if (awesomeMarker) {
+				tabIDP[selected.text].marker = L.marker([tabIDP[selected.text].latitude, tabIDP[selected.text].longitude], {icon: awesomeMarker});
+			}
+			else {
+				tabIDP[selected.text].marker = L.marker([tabIDP[selected.text].latitude, tabIDP[selected.text].longitude], {icon: defaultMarker});
+			}
+			markerLayer.addLayer(tabIDP[selected.text].marker);
+		}
+
+		if (tabIDP[selected.text].marker){
 
 			var popup = L.popup({autoPan: false}).setContent(selected.text);
 
@@ -317,10 +318,15 @@ $(function(){
 
 				var icone = $('<span/>')
 				.addClass('icone ui-icone')
-				.css("background-position", tabIDP[value.text].logo + "px 0px")
 				.css("margin-right", "10px")
 				.css("vertical-align", "sub")
-				.prependTo(a);
+
+				if (tabIDP[value.text].logo){
+					icone.css("background", "url(" + tabIDP[value.text].logo + ")");
+				}
+				else {
+					icone.css("background-position", tabIDP[value.text].logoPos + "px 0px");
+				}
 
 				icone.prependTo(a);
 
