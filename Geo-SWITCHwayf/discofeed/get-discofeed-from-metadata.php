@@ -19,9 +19,7 @@ if (!isset($argv[1])){
 	die("Error: Invalid number of input arguments!\n\n".$info);
 }
 
-$discofeedFile = dirname(__FILE__).'/discofeed.metadata.php';
-
-echo "Fetching discofeed from metadata..."
+echo "Fetching discofeed from metadata...";
 $metadataFile = $argv[1];
 if (!preg_match('/(.+)\.xml$/', $metadataFile, $matches)){
 	$error = 'The file '.$metadataFile.' must be a SAML2 metadata file file with the suffix .xml.';
@@ -62,22 +60,27 @@ foreach( $EntityDescriptors as $EntityDescriptor ){
 
 require_once('discofeed-functions.php');
 
+$JSONdir = dirname(__FILE__).'/feeds/';
+
+if (!file_exists($JSONdir)) {
+    mkdir($JSONdir, 0755, true);
+}
 
 foreach ($metadataSProviders as $key => $val){
-
+	if (strpos($key, 'univ-paris1') == false) {
+		continue;
+	}
+	
 	$output = discoFeedByID($val);
 	if ($output[0] == 0){
-		echo "Discofeed ".$key." saved\n";
-		$metadataSProviders[$key]['FEED'] = $output[1];
-
+		$file_name = getDomainFromKey($key);
+		$file = $JSONdir.$file_name.'.json';
+		echo "Saving discofeed to : ".$file.".\n";
+		saveJSONfile($output[1], $file);
 	} else {
-		echo "Discofeed ".$key." failed (".$output[1].")\n";
+		echo "Discofeed ".$key." could not be found (".$output[1].")\n";
 	}
 }
 
-if(is_array($metadataSProviders)){ 
-	echo 'Dumping parsed array to file '.$discofeedFile."\n";
-	dumpFile($discofeedFile, $metadataSProviders, 'discofeedArray');
-}
 
 ?>

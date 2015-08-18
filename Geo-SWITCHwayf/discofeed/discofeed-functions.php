@@ -3,13 +3,9 @@
 // Returns all the possible url for discofeed
 function discoFeedByID($entityID){
 
-	$shib = "Shibboleth.sso";
+	$shib = "/Shibboleth.sso";
 	$disco = "/DiscoFeed";
-		
-	if (!isset($entityID['ACURL'])){
-		return array(1, 'No adresse to fetch discofeed.');;
-	}
-		
+
 	foreach($entityID as $ACURL){
 		if (strrpos($ACURL, $shib)){
 			$ACURL = substr($ACURL, 0, strrpos($ACURL, $shib) + strlen($shib));
@@ -45,11 +41,13 @@ function discoFeedByACURL($ACURL){
 /******************************************************************************/
 // Ask for JSON discofeed to the SP
 function fetchDiscoFeed($url) {
-	
+
 	$ch = curl_init($url);
 
 	curl_setopt($ch,CURLOPT_HEADER,true);
 	curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT ,2); 
 	curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
@@ -57,9 +55,7 @@ function fetchDiscoFeed($url) {
 	$info = curl_getinfo( $ch );
 	curl_close($ch);
 	$json = substr($output,$info['header_size']);
-	$content = json_decode($json, true);
-
-	return $content;
+	return $json;
 }
 
 /******************************************************************************/
@@ -67,6 +63,25 @@ function fetchDiscoFeed($url) {
 function isJson($string) {
 	json_decode($string);
 	return (json_last_error() == JSON_ERROR_NONE);
+}
+
+/******************************************************************************/
+// Dump variable to a file 
+function saveJSONfile($content, $name){
+
+	if(($fp = fopen($name, 'w')) !== false){
+		fwrite($fp, $content);
+		fclose($fp);
+	} else {
+		logInfo('Could not open file '.$dumpFile.' for writting');
+	}
+}
+
+/******************************************************************************/
+// Return domain
+function getDomainFromKey($key) {
+	$split = split("\/", $key);
+	return $split[2];
 }
 
 /******************************************************************************/

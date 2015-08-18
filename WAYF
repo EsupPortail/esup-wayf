@@ -474,7 +474,22 @@ if (
 	}
 
 	if ($useDiscoFeed) {
-		$discoFeed = retrieveDiscoFeed($_GET['entityID']);
+		$JSONdir = dirname(__FILE__).'/Geo-SWITCHwayf/discofeed/feeds/';
+		$domain;
+		foreach ($_GET as $key => $val){
+			if (ereg("http(s)://", $val)){
+				$splitUrl = split("\/", $val);
+				$domain = $splitUrl[2];
+				break;
+			}
+		}
+		$JSONfile = $JSONdir.$domain.".json";
+		$string = file_get_contents($JSONfile);
+		$JSONtab = json_decode($string, true);
+		$discoFeed = array();
+		foreach ($JSONtab as $cle => $val) {
+			$discoFeed[$val['entityID']] = $val;
+		}
 	}
 	
 	// Show selection

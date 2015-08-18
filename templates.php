@@ -60,19 +60,8 @@ function printWAYF(){
 
 
 	if (isset($discoFeed) && !empty($discoFeed)){
-
-		$showCRUAccountDiv = false;
-		$showLocalIDPDiv = false;
-
-		for ($i = 0; $i < sizeof($discoFeed); $i++){
-
-			if ($discoFeed[$i]['entityID'] == $CRUID){
-				$showCRUAccountDiv = true;
-			}
-			else if ($discoFeed[$i]['entityID'] == $LocalIDPID){
-				$showLocalIDPDiv = true;
-			}
-		}
+		$showCRUAccountDiv = array_key_exists($CRUID, $discoFeed);
+		$showLocalIDPDiv = array_key_exists($LocalIDPID, $discoFeed);
 	}
 
 	$useMyFederationAccount = sprintf(getLocalString('federation_account'), $federationName);
@@ -171,27 +160,13 @@ function printSettings(){
 function printDropDownList($IDProviders, $selectedIDP = ''){
 	
 	global $language;
-	global $discoFeed;
 
 	$previouslyUsedIdPsHTML = getPreviouslyUsedIdPsHTML();
 
-	$counter = 0;
 	$optgroup = '';
 
 	foreach ($IDProviders as $key => $values){
 
-		if (isset($discoFeed) && !empty($discoFeed)){
-			$foundIDP = false;
-			for ($i = 0; $i < sizeof($discoFeed); $i++){
-				if ($discoFeed[$i]['entityID'] == $key || $key == 'unknown') {
-					$foundIDP = true;
-				}
-			}
-			if (!$foundIDP){
-				continue;
-			}
-		}
-	
 		// Get IdP Name
 		$IdPName = (isset($values[$language]['Name'])) ? $values[$language]['Name'] : $IdPName = $values['Name'];
 		
@@ -219,7 +194,6 @@ function printDropDownList($IDProviders, $selectedIDP = ''){
 		
 		echo "\n\t".printOptionElement($IDProviders, $key, $selectedIDP);
 		
-		$counter++;
 	}
 
 	// Add last optgroup if that was used
@@ -277,10 +251,17 @@ function getPreviouslyUsedIdPsHTML(){
 // Print a single option element of the drop down list
 function printOptionElement($IDProviders, $key, $selectedIDP){
 	global $language;
-	
+	global $discoFeed;
+
 	// Return if IdP does not exit
 	if (!isset($IDProviders[$key])){
 		return '';
+	}
+
+	if (isset($discoFeed) && !empty($discoFeed)){
+		if (!array_key_exists($key, $discoFeed)){
+			return '';
+		}
 	}
 	
 	// Get values

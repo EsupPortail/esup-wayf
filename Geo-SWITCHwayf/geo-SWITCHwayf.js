@@ -212,7 +212,7 @@ $(function(){
 	$.each($('#userIdPSelection optgroup[id="idpList"] option'), function(i, selected){
 
 		var nIDP;
-		
+
 		if (selected.getAttribute('data-lat') && selected.getAttribute('data-lon') && selected.getAttribute('data')){
 			nIDP = new IDP(selected.value, selected.getAttribute('data'), selected.getAttribute('data-lat'),
 				selected.getAttribute('data-lon'));

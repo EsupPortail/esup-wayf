@@ -23,6 +23,8 @@ case $1 in
 	url="https://federation.renater.fr/test/renater-test-metadata.xml";;
     "edugain")
 	url="https://federation.renater.fr/edugain/idps-edugain+renater+sac-metadata.xml";;
+    "edugain-test")
+	url="https://federation.renater.fr/edugain/idps-edugain-metadata.xml https://federation.renater.fr/test/renater-test-metadata.xml";;
     *)
 	echo "Error"
         echo "Unknown federation, please update this script"
@@ -37,8 +39,30 @@ fi
 
 # Download metadata
 echo "Downloading metadata..."
-wget --quiet --no-check-certificate $url -O $PATHtoWAYF/tmp/metadata.xml
-sleep 3;
+count=0
+for link in $url; do
+    wget --quiet --no-check-certificate $link -O $PATHtoWAYF/tmp/$count.xml
+    count=$(($count + 1))
+    sleep 3;
+done
+
+if [ $count -gt 2 ]; then
+    echo "Error : Can't merge more than two XML files."
+    echo "Exiting"
+    rm $PATHtoWAYF/tmp/*.xml
+    exit 1
+elif [ $count -gt 1 ]; then
+    echo "Merging XML files with xmlcombine.py"
+    i=0
+    while [ $i -lt $count ]; do
+       args="$args$PATHtoWAYF/tmp/$i.xml "
+       i=$(($i + 1))
+    done
+    python $GEOWAYFDIR/xmlcombine.py $args > $PATHtoWAYF/tmp/metadata.xml
+    rm $args
+else
+    mv $PATHtoWAYF/tmp/0.xml $PATHtoWAYF/tmp/metadata.xml
+fi
 
 echo "Checking if XML file is well-formed"
 xmllint --noout $PATHtoWAYF/tmp/metadata.xml
@@ -54,8 +78,8 @@ echo "Updating discojuice geolocation hints..."
 $GEOWAYFDIR/discojuice/update-discojuice.sh > /dev/null
 
 # Refresh WAYF's discofeed
-echo "Updating discofeed..."
-php $GEOWAYFDIR/discofeed/get-discofeed-from-array.php $PATHtoWAYF/discofeed.metadata.php > /dev/null
+echo "Downloading discofeeds..."
+php $GEOWAYFDIR/discofeed/get-discofeed-from-metadata.php $GEOWAYFDIR/tmp/metadata.xml > /dev/null
 
 # Update wayf's metadata
 echo "Updating WAYF's metadata..."

@@ -2,6 +2,7 @@
 
 # Fichiers générés
 Geo-SWITCHwayf/discojuice/*.json
+Geo-SWITCHwayf/discofeed/feeds
 Geo-SWITCHwayf/images/sprite_sheet.png
 Geo-SWITCHwayf/favicon-fetcher/idps-renater-metadata-logos/*
 Geo-SWITCHwayf/js/sprite_sheet_array.js
@@ -9,6 +10,8 @@ IDProvider.metadata.php
 IDProvider-logos.conf.php
 SProvider.metadata.php
 discofeed.metadata.php
+tmp/
+.project
 
 # Fichiers XML
 metadata.xml
