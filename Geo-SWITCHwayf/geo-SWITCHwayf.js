@@ -117,7 +117,7 @@ $(function(){
 
 		else {
 
-			for (var idp in IDPtoDisplay){
+			$.each(IDPtoDisplay, function(i, idp){
 
 				var li = $('<li/>')
 				.addClass('ui-menu-item')
@@ -126,10 +126,10 @@ $(function(){
 
 				var a = $('<a/>')
 				.addClass('ui-all')
-				.text(IDPtoDisplay[idp])
+				.text(idp)
 				.attr('href', '#')
 				.click(function(){
-					clickList(tabIDP[IDPtoDisplay[idp]].URLShibboleth);
+					clickList(tabIDP[idp].URLShibboleth);
 				})
 				.appendTo(li);
 
@@ -138,20 +138,20 @@ $(function(){
 				.css("margin-right", "10px")
 				.css("vertical-align", "sub")
 
-				if (tabIDP[IDPtoDisplay[idp]].logo){
-					icone.css("background", "url(" + tabIDP[IDPtoDisplay[idp]].logo + ")");
+				if (tabIDP[idp].logo){
+					icone.css("background", "url(" + tabIDP[idp].logo + ")");
 				}
 				else {
-					icone.css("background-position", tabIDP[IDPtoDisplay[idp]].logoPos + "px 0px");
+					icone.css("background-position", tabIDP[idp].logoPos + "px 0px");
 				}
 
 				icone.prependTo(a);
 
-				if (source === "searchBar" && tabIDP[IDPtoDisplay[idp]].marker){
-					tabLatLng.push(tabIDP[IDPtoDisplay[idp]].marker.getLatLng());
-					markerLayer.addLayer(tabIDP[IDPtoDisplay[idp]].marker);
+				if (source === "searchBar" && tabIDP[idp].marker){
+					tabLatLng.push(tabIDP[idp].marker.getLatLng());
+					markerLayer.addLayer(tabIDP[idp].marker);
 				}
-			}
+			});
 		}
 
 		if (source === "searchBar" && tabLatLng.length > 0){
