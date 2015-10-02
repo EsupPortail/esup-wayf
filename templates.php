@@ -45,23 +45,36 @@ function printWAYF(){
 	$serviceName = '';
 	$entityID = '';
 
+	if (isset($discoFeed) && !empty($discoFeed)){
+		if (!array_key_exists($CRUID, $discoFeed)){
+			$showCRUAccountDiv = false;
+		}
+		if (!array_key_exists($LocalIDPID, $discoFeed)){
+			$showLocalIDPDiv = false;
+		}
+	}
+
 	// Check if custom wayf variables are set in the URL
-	if (isset($_GET['showLocalIDPDiv'])){
+	if (isset($_GET['showLocalIDPDiv']) && $showLocalIDPDiv == true){
 		$showLocalIDPDiv = $_GET['showLocalIDPDiv'];
 	}
 
-	if (isset($_GET['showCRUAccountDiv'])){
+	if (isset($_GET['showCRUAccountDiv']) && $showCRUAccountDiv == true){
 		$showCRUAccountDiv = $_GET['showCRUAccountDiv'];
 	}
 
 	if (isset($_GET['isPanelFolded'])){
 		$isPanelFolded = $_GET['isPanelFolded'];
 	}
+	else if (!$showLocalIDPDiv && !$showCRUAccountDiv){
+		$isPanelFolded = false;
+	}
 
-
-	if (isset($discoFeed) && !empty($discoFeed)){
-		$showCRUAccountDiv = array_key_exists($CRUID, $discoFeed);
-		$showLocalIDPDiv = array_key_exists($LocalIDPID, $discoFeed);
+	if (!$isPanelFolded && !$showLocalIDPDiv){
+		$adaptPanelText = true;
+	}
+	else {
+		$adaptPanelText = false;
 	}
 
 	$useMyFederationAccount = sprintf(getLocalString('federation_account'), $federationName);
@@ -137,6 +150,16 @@ function printSettings(){
 
 	if (isset($_GET['isPanelFolded'])){
 		$isPanelFolded = $_GET['isPanelFolded'];
+	}
+	else if (!$showLocalIDPDiv && !$showCRUAccountDiv){
+		$isPanelFolded = false;
+	}
+
+	if (!$isPanelFolded && !$showLocalIDPDiv){
+		$adaptPanelText = true;
+	}
+	else {
+		$adaptPanelText = false;
 	}
 
 	$useMyFederationAccount = sprintf(getLocalString('federation_account'), $federationName);

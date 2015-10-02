@@ -314,6 +314,8 @@ $(function(){
 					function(){
 						a.css("text-decoration", "none");
 					})
+				.css("pointer-events","auto")
+				.css("cursor","auto")
 				.appendTo(div);
 
 				var icone = $('<span/>')
@@ -334,8 +336,10 @@ $(function(){
 			}
 		});
 
+		if ($('#div-co-wayf h3').css('visibility') == 'hidden'){
+			$('#div-co-wayf h3').css('display', 'none');
+		}
 		div.appendTo($('#div-co-wayf'));
-
 	}
 
 	markerLayer.addTo(map);

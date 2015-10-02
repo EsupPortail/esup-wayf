@@ -20,7 +20,7 @@
 					<?php if ($showLocalIDPDiv) : ?>
 						<a class="nounderline" onclick="selectMyFederation()" href="#" >
 							<div id="div-co-myfederation" class="well">
-								<h3><?php echo $useMyFederationAccount ?><span class="glyphicon glyphicon-arrow-right pull-right"></span></h3>
+								<h3><?php echo $useMyFederationAccount; ?><span class="glyphicon glyphicon-arrow-right pull-right"></span></h3>
 							</div>
 						</a>
 					<?php endif ?>
@@ -28,10 +28,10 @@
 						<?php if ($isPanelFolded) : ?>
 							<a id="block-map" class="nounderline collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
 						<?php else: ?>
-							<a id="block-map" class="nounderline" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+							<a id="block-map" class="nounderline" data-toggle="collapse" data-parent="#accordion" <?php if($adaptPanelText){echo 'href="#noCollapse" style="pointer-events: none; cursor: default;"';}else{echo 'href="#collapseOne"';} ?> aria-expanded="true" aria-controls="collapseOne">
 						<?php endif ?>
-							<div id="div-co-wayf" class="panel-heading" role="tab" id="headingOne">
-								<h3 class="panel-title"><?php echo $useOtherFederationAccount ?><span id="glyph-collapse" class="glyphicon glyphicon-chevron-down pull-right"></span></h3>
+							<div id="div-co-wayf" class="panel-heading" role="tab" id="headingOne" <?php if($adaptPanelText){echo 'style="background-color: #F5F5F5;"';} ?>>
+									<h3 class="panel-title"<?php if($adaptPanelText){echo 'style="visibility: hidden;"';} ?>><?php echo $useOtherFederationAccount ?><span id="glyph-collapse" class="glyphicon glyphicon-chevron-down pull-right"></span></h3>
 							</div>
 						</a>
 						<?php if ($isPanelFolded) : ?>
