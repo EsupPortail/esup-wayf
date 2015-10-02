@@ -29,6 +29,10 @@ if (file_exists('custom-languages.php')){
 	require_once('custom-languages.php');
 }
 
+if (file_exists('Geo-SWITCHwayf/discofeed/known-sp.php')){
+	require_once('Geo-SWITCHwayf/discofeed/known-sp.php');
+}
+
 /*------------------------------------------------*/
 // Turn on PHP error reporting
 /*------------------------------------------------*/
@@ -475,20 +479,39 @@ if (
 
 	if ($useDiscoFeed) {
 		$JSONdir = dirname(__FILE__).'/Geo-SWITCHwayf/discofeed/feeds/';
-		$domain;
-		foreach ($_GET as $key => $val){
-			if (ereg("http(s)://", $val)){
-				$splitUrl = split("\/", $val);
-				$domain = $splitUrl[2];
-				break;
+		$SPShibUrl;
+		$splitedUrl;
+		if (is_array($_GET)){
+			foreach ($_GET as $key => $val){
+				preg_match('/^http(s):\/\/.*\/Shibboleth\.sso/', $val, $matches);
+				if (isset($matches[0]) && !empty($matches[0])){
+				 	$SPShibUrl = $matches[0];
+				 	$splitedUrl = preg_split('/\//', $SPShibUrl);
+				 	break;
+				 }
 			}
 		}
-		$JSONfile = $JSONdir.$domain.".json";
-		$string = file_get_contents($JSONfile);
-		$JSONtab = json_decode($string, true);
-		$discoFeed = array();
-		foreach ($JSONtab as $cle => $val) {
-			$discoFeed[$val['entityID']] = $val;
+		$JSONfile = $JSONdir.$splitedUrl[2].".json";
+		if (file_exists($JSONfile)){
+			$string = file_get_contents($JSONfile);
+			$JSONtab = json_decode($string, true);
+			$discoFeed = array();
+			foreach ($JSONtab as $cle => $val) {
+				$discoFeed[$val['entityID']] = $val;
+			}
+		}
+		else {
+			if (!empty($knownSP) && isset($knownSP)){
+				if (array_search($SPShibUrl, $knownSP) === false) {
+					array_push($knownSP, $SPShibUrl);
+					dumpFile(dirname(__FILE__).'/Geo-SWITCHwayf/discofeed/known-sp.php', $knownSP, "knownSP");
+				}
+			}
+			else {
+				$knownSP = array();
+				array_push($knownSP, $SPShibUrl);
+				dumpFile(dirname(__FILE__).'/Geo-SWITCHwayf/discofeed/known-sp.php', $knownSP, "knownSP");
+			}
 		}
 	}
 	

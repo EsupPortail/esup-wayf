@@ -79,7 +79,7 @@ $GEOWAYFDIR/discojuice/update-discojuice.sh > /dev/null
 
 # Refresh WAYF's discofeed
 echo "Downloading discofeeds..."
-php $GEOWAYFDIR/discofeed/get-discofeed-from-metadata.php $GEOWAYFDIR/tmp/metadata.xml > /dev/null
+php $GEOWAYFDIR/discofeed/get-discofeed-from-array.php $GEOWAYFDIR/discofeed/known-sp.php > /dev/null
 
 # Update wayf's metadata
 echo "Updating WAYF's metadata..."

@@ -1018,4 +1018,29 @@ function isRequestRefererMatchingSPHost(){
 	
 	return false;
 }
+
+/******************************************************************************/
+// Dump variable to a file
+function dumpFile($dumpFile, $providers, $variableName){
+
+	if(($fp = fopen($dumpFile, 'w')) !== false){
+		fwrite($fp, "<?php\n\n");
+		fwrite($fp, "// This file was automatically generated.\n");
+		fwrite($fp, "// Don't edit!\n\n");
+
+		fwrite($fp, '$'.$variableName.' = ');
+		fwrite($fp, var_export($providers,true));
+
+		fwrite($fp, "\n?>");
+			
+		fclose($fp);
+	} else {
+		$errorMsg = 'Could not open file '.$dumpFile.' for writting';
+		if (isRunViaCLI()){
+			echo $errorMsg."\n";
+		} else {
+			logInfo($errorMsg);
+		}
+	}
+}
 ?>
