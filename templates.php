@@ -61,6 +61,11 @@ function printWAYF(){
 
 	if (isset($_GET['showCRUAccountDiv']) && $showCRUAccountDiv == true){
 		$showCRUAccountDiv = $_GET['showCRUAccountDiv'];
+		if ($showCRUAccountDiv == false){
+			if (array_key_exists($CRUID, $IDProviders)){
+				unset($IDProviders[$CRUID]);
+			}
+		}
 	}
 
 	if (isset($_GET['isPanelFolded'])){
