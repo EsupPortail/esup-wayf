@@ -17,7 +17,7 @@ else {
 	$JSONdir = dirname(__FILE__).'/feeds/';
 
 	if (!file_exists($JSONdir)) {
-    	mkdir($JSONdir, 0755, true);
+		mkdir($JSONdir);
 	}
 
 	$disco = "/DiscoFeed";

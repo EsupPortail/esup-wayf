@@ -19,21 +19,21 @@ esup-wayf is based on the software SWITCHwayf v1.19.4. It is a custom theme that
 ```bash
 ProxyPassMatch /map/(.*)/(.*)/(.*)/(.*) http://$1.basemaps.cartocdn.com/light_all/$2/$3/$4.png
 ```
-- In config.php, configure the esup-wayf variables.
-- Configure variables "myIDP" and "cru" in the file Geo-SWITCHwayf/geo-SWITCHwayf.js (Values need to be the same as those delivered by Shibboleth). You can also set the variable "isGeolocationEnabled" to true if you want the map to be set at the user's position.
+- In config.php, uncomment and configure the Geo-SWITCHwayf variables.
 - You can adapt the colors and style in the file Geo-SWITCHwayf/css/style.css
-- If your federation is not Renater, you need to adapt the script "update-wayf.sh" to fetch the right metadata files.
-- Run the script `Geo-SWITCHwayf/update.sh WAYF-PATH renater` . It will update idp's data, geolocation and icons (Run this script daily in a CRON). 
+- If your federation is not renater, renater-test, edugain or edugain-test, you need to adapt the script "update-wayf.sh" to fetch the right metadata files.
+- Run the script `Geo-SWITCHwayf/update.sh {federation_name}`. It will update idp's data, geolocation and icons.
+- Configure a crontab to run this command daily.
 
-To enable discofeed filter (Require Shibboleth >= 2.4)
+To enable discofeed on SP (Require Shibboleth >= 2.4)
 
-- In the service provider's shibboleth2.xml enable the discofeed (make sure that the location is "/DiscoFeed") and add a whitelist which contains all the allowed IDP (these IDP must exist in the federation XML file).
-- Restart shibboleth
-- Check that you can display the JSON file at "yourSP.univ.fr/shibboleth-path/DiscoFeed"
+- In the service provider's shibboleth2.xml enable the discofeed (make sure that the location is "/DiscoFeed"). example : <Handler type="DiscoveryFeed" Location="/DiscoFeed"/>
+- Restart Shibboleth.
+- Check that you can display the JSON file at "yourSP.univ.fr/Shibboleth.sso/DiscoFeed", the content of the SP's metadata file should appear.
 
 Important :
 
-Make sure to enable writing permissions for the files discofeed.metadata.php, IDProvider.metadata.php, SProvider.metadata.php and wayf_metadata.lock
+Make sure to enable writing permissions for the files IDProvider.metadata.php, SProvider.metadata.php, wayf_metadata.lock.
 
 Other softwares and library used
 

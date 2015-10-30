@@ -29,8 +29,8 @@ if (file_exists('custom-languages.php')){
 	require_once('custom-languages.php');
 }
 
-if (file_exists('Geo-SWITCHwayf/discofeed/known-sp.php')){
-	require_once('Geo-SWITCHwayf/discofeed/known-sp.php');
+if (file_exists($discofeedFile)){
+	require_once($discofeedFile);
 }
 
 /*------------------------------------------------*/
