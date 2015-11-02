@@ -29,10 +29,6 @@ if (file_exists('custom-languages.php')){
 	require_once('custom-languages.php');
 }
 
-if (file_exists($discofeedFile)){
-	require_once($discofeedFile);
-}
-
 /*------------------------------------------------*/
 // Turn on PHP error reporting
 /*------------------------------------------------*/
@@ -478,8 +474,13 @@ if (
 	}
 
 	if ($useDiscoFeed) {
+		$discofeedFile = dirname(__FILE__).'/Geo-SWITCHwayf/discofeed/known-sp.php';
+		if (file_exists($discofeedFile)){
+			require_once($discofeedFile);
+		}
+		$discofeedDLCmd = 'php '.dirname(__FILE__).'/Geo-SWITCHwayf/discofeed/get-discofeed-from-array.php';
 		$JSONdir = dirname(__FILE__).'/Geo-SWITCHwayf/discofeed/feeds/';
-		$SPShibUrl;
+		global $SPShibUrl;
 		$splitedUrl;
 		if (is_array($_GET)){
 			foreach ($_GET as $key => $val){
@@ -503,14 +504,12 @@ if (
 		else {
 			if (!empty($knownSP) && isset($knownSP)){
 				if (array_search($SPShibUrl, $knownSP) === false) {
-					array_push($knownSP, $SPShibUrl);
-					dumpFile(dirname(__FILE__).'/Geo-SWITCHwayf/discofeed/known-sp.php', $knownSP, "knownSP");
+					addNewDiscofeedURL($knownSP, $SPShibUrl, $discofeedFile, $discofeedDLCmd);
 				}
 			}
 			else {
 				$knownSP = array();
-				array_push($knownSP, $SPShibUrl);
-				dumpFile(dirname(__FILE__).'/Geo-SWITCHwayf/discofeed/known-sp.php', $knownSP, "knownSP");
+				addNewDiscofeedURL($knownSP, $SPShibUrl, $discofeedFile, $discofeedDLCmd);
 			}
 		}
 	}

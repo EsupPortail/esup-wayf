@@ -3,6 +3,13 @@
 	<div id="wrap">
 
 		<div class="container">
+			<?php if ($isUpdatingDiscoFeed) : ?>
+				<div class="alert alert-info" role="alert" style="margin-top:20px;">
+					<h4><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span><?php echo " ".$updateDiscofeedTitle; ?></h4>
+					<p><?php echo $updateDiscofeed1; ?><a href="<?php echo $SPShibUrl; ?>"><?php echo $SPShibUrl; ?></a></p>
+					<p><?php echo $updateDiscofeed2; ?></p>
+				</div>
+			<?php endif ?>
 
 			<div class="row">
 				<header id="header-logo" class="center-block"></header>

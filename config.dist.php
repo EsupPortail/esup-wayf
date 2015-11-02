@@ -164,8 +164,6 @@
 
 // Set to true to use discoFeed to filter IDP
 //$useDiscoFeed = true;
-  // File used to store SP accessed via the WAYF. CRON fetch discofeeds from this list.
-  //$discofeedFile = 'Geo-SWITCHwayf/discofeed/known-sp.php';
 
 // Set to true to retrieve geolocation data for the IDP
 //$UseDiscojuiceGeolocation = true;

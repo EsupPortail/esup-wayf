@@ -35,8 +35,8 @@ function printWAYF(){
 	
 	global $selectedIDP, $language, $IDProviders, $SProviders, $redirectCookieName, $imageURL, $redirectStateCookieName, $showPermanentSetting;
 
-	global $showLocalIDPDiv, $showCRUAccountDiv, $isPanelFolded, $federationName, $discoFeed, $CRUID, $LocalIDPID;
-	
+	global $showLocalIDPDiv, $showCRUAccountDiv, $isPanelFolded, $federationName, $discoFeed, $CRUID, $LocalIDPID, $isUpdatingDiscoFeed, $SPShibUrl;
+
 	if (!isset($showPermanentSetting)){
 		$showPermanentSetting = false;
 	}
@@ -44,6 +44,13 @@ function printWAYF(){
 	$promptMessage =  getLocalString('make_selection');
 	$serviceName = '';
 	$entityID = '';
+
+	if ($isUpdatingDiscoFeed){
+		$SPShibUrl = $SPShibUrl."/DiscoFeed";
+		$updateDiscofeedTitle = getLocalString('updateDiscofeedTitle');
+		$updateDiscofeed1 = getLocalString('updateDiscofeed1');
+		$updateDiscofeed2 = getLocalString('updateDiscofeed2');
+	}
 
 	if (isset($discoFeed) && !empty($discoFeed)){
 		if (!array_key_exists($CRUID, $discoFeed)){

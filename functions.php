@@ -1043,4 +1043,15 @@ function dumpFile($dumpFile, $providers, $variableName){
 		}
 	}
 }
+
+/******************************************************************************/
+// Add a new SP to the discofeed list and launch the script to download the discofeed.
+function addNewDiscofeedURL($knownSP, $SPShibUrl, $discofeedFile, $discofeedDLCmd){
+	global $isUpdatingDiscoFeed;
+
+	array_push($knownSP, $SPShibUrl);
+	dumpFile($discofeedFile, $knownSP, "knownSP");
+	exec($discofeedDLCmd." ".$discofeedFile." > /dev/null");
+	$isUpdatingDiscoFeed = true;
+}
 ?>
