@@ -73,7 +73,7 @@ function saveJSONfile($content, $name){
 		fwrite($fp, $content);
 		fclose($fp);
 	} else {
-		logInfo('Could not open file '.$dumpFile.' for writting');
+		die('Could not open file '.$name.' for writting');
 	}
 }
 
@@ -100,7 +100,7 @@ function dumpFile($dumpFile, $providers, $variableName){
 			
 		fclose($fp);
 	} else {
-		logInfo('Could not open file '.$dumpFile.' for writting');
+		die('Could not open file '.$dumpFile.' for writting');
 	}
 }
 ?>

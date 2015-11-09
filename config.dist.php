@@ -162,6 +162,11 @@
 // Geo-SWITCHwayf configuration variables
 // *************************************
 
+// Temporary directory for downloads and file manipulations
+// This must be an absolute path if modified
+// If untouched, the path will be pathToWayf/tmp
+//$tmpDir = "";
+
 // Set to true to use discoFeed to filter IDP
 //$useDiscoFeed = true;
 

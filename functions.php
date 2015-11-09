@@ -1051,7 +1051,7 @@ function addNewDiscofeedURL($knownSP, $SPShibUrl, $discofeedFile, $discofeedDLCm
 
 	array_push($knownSP, $SPShibUrl);
 	dumpFile($discofeedFile, $knownSP, "knownSP");
-	exec($discofeedDLCmd." ".$discofeedFile." > /dev/null");
+	exec($discofeedDLCmd." ".$SPShibUrl." > /dev/null");
 	$isUpdatingDiscoFeed = true;
 }
 ?>
