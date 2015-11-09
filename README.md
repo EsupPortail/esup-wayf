@@ -15,10 +15,6 @@ esup-wayf is based on the software SWITCHwayf v1.19.4. It is a custom theme that
 ## Installation
 
 - Follow the instructions given by SWITCH to install SWITCHwayf v1.19.4
-- To display map add Apache directive : 
-```bash
-ProxyPassMatch /map/(.*)/(.*)/(.*)/(.*) http://$1.basemaps.cartocdn.com/light_all/$2/$3/$4.png
-```
 - In config.php, uncomment and configure the Geo-SWITCHwayf variables.
 - You can adapt the colors and style in the file Geo-SWITCHwayf/css/style.css
 - If your federation is not renater, renater-test, edugain or edugain-test, you need to adapt the script "update-wayf.sh" to fetch the right metadata files.
