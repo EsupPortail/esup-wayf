@@ -12,6 +12,10 @@ esup-wayf is based on the software SWITCHwayf v1.19.4. It is a custom theme that
 ![esup-wayf](https://github.com/EsupPortail/esup-wayf/blob/master/images/wayf.png)
 
 
+## Dependencies
+
+In order to run the WAYF and the CRON, you need the following softwares installed on your server : PHP5, Python, xmllint and imagick
+
 ## Installation
 
 - Follow the instructions given by SWITCH to install SWITCHwayf v1.19.4
