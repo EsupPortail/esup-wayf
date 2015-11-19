@@ -38,7 +38,7 @@ function getFavicon($url, $directory = './'){
 	//$faviconURL = 'http://g.etfv.co/http://www.'.$domain.'?defaulticon=none';
 	$faviconURL = 'http://www.google.com/s2/favicons?domain=www.'.$domain.'';
 	
-	$content = URLopen($faviconURL);
+	$content = cURLopen($faviconURL);
 	
 	if (empty($content) || md5($content) == 'b8a0bf372c762e966cc99ede8682bc71'){
 		return array(1, 'No favicon found');
@@ -71,5 +71,18 @@ function URLopen($url){
 	$result = fread($dh,8192);                                                                                                                            
 	return $result;
 } 
+
+function cURLopen($url){
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT ,1);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_HEADER, 0);
+	$response = curl_exec($ch);
+	curl_close($ch);
+	
+	return $response;	
+}
 
 ?>
