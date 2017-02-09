@@ -76,14 +76,14 @@ if(isRunViaCLI()){
 	// If $metadataIDProviders is not FALSE, update $IDProviders and print the Identity Providers lists.
 	if(is_array($metadataIDProviders)){ 
 
-		echo 'Merging parsed Identity Providers with data from file '.$IDProviders."\n";
+		echo 'Merging parsed Identity Providers with data from file '.$metadataFile."\n";
 		$IDProviders = mergeInfo($IDProviders, $metadataIDProviders, $SAML2MetaOverLocalConf, $includeLocalConfEntries);
-		
-		echo "Printing parsed Identity Providers:\n";
+
+		/*echo "Printing parsed Identity Providers:\n";
 		print_r($metadataIDProviders);
 		
 		echo "Printing effective Identity Providers:\n";
-		print_r($IDProviders);
+		print_r($IDProviders);*/
 	}
 	
 	// If $metadataSProviders is not FALSE, update $SProviders and print the list.
@@ -91,9 +91,9 @@ if(isRunViaCLI()){
 		
 		// Fow now copy the array by reference
 		$SProviders = &$metadataSProviders;
-		
-		echo "Printing parsed Service Providers:\n";
-		print_r($metadataSProviders);
+
+		/*echo "Printing parsed Service Providers:\n";
+		print_r($metadataSProviders);*/
 	}
 	
 	
@@ -162,8 +162,10 @@ if(isRunViaCLI()){
 
 		// Read SP and IDP files generated with metadata
 		require($metadataIDPFile);
-		require($metadataSPFile);
-	
+		if (file_exists($metadataSPFile)){
+			require($metadataSPFile);
+		}
+
 		// Release the lock.
 		if ($lockFp !== false) {
 			flock($lockFp, LOCK_UN);
@@ -191,7 +193,7 @@ closelog();
 // Function parseMetadata, parses metadata file and returns Array($IdPs, SPs)  or
 // Array(false, false) if error occurs while parsing metadata file
 function parseMetadata($metadataFile, $defaultLanguage){
-	
+	$metadataSProviders = array();
 	if(!file_exists($metadataFile)){
 		$errorMsg = 'File '.$metadataFile." does not exist"; 
 		if (isRunViaCLI()){
@@ -300,7 +302,7 @@ function processIDPRoleDescriptor($IDPRoleDescriptorNode){
 	}
 	
 	// Set SAML1 SSO URL
-	if ($Profiles['urn:mace:shibboleth:1.0:profiles:AuthnRequest']) {
+	if (isset($Profiles['urn:mace:shibboleth:1.0:profiles:AuthnRequest'])) {
 		$IDP['SSO'] = $Profiles['urn:mace:shibboleth:1.0:profiles:AuthnRequest'];
 	} else if ($Profiles['urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect']) {
 		$IDP['SSO'] = $Profiles['urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'];
@@ -668,7 +670,7 @@ function addDiscojuiceGeolocation(&$metadataIDProviders) {
 			$IDP = &$metadataIDProviders[$e->entityID];
 			if (isset($IDP['GeolocationHint'])) continue;
 
-			$IDP['GeolocationHint'] = $e->geo->lat . "," . $e->geo->lon;
+			$IDP['GeolocationHint'] = isset($e->geo)?$e->geo->lat . "," . $e->geo->lon:null;
 		}
 	}
 }

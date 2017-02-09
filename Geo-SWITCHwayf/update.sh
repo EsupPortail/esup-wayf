@@ -5,8 +5,9 @@
 # Script to update WAYF's metadata
 # Usage : ./update.sh <metadata_to_use>
 # Exemple : ./update.sh renater
+# Should be executed into www/ were user has permission, the script will generate files into the folder
 
-
+echo "============  $(date +"%d-%m-%Y %T") ============="
 GEOWAYFDIR=$(dirname $0)
 PATHtoWAYF=$GEOWAYFDIR/..
 TMPDIR=$(sed -n 's/$tmpDir = "\(.*\)";/\1/p' < $PATHtoWAYF/config.php)
@@ -21,13 +22,11 @@ fi
 
 case $1 in
     "renater")
-	url="https://federation.renater.fr/renater/idps-renater-metadata.xml";;
+	url="https://metadata.federation.renater.fr/renater/main/main-all-renater-metadata.xml";;
     "renater-test")
-	url="https://federation.renater.fr/test/renater-test-metadata.xml";;
+	url="https://metadata.federation.renater.fr/test/preview/preview-all-renater-test-metadata.xml";;
     "edugain")
-	url="https://federation.renater.fr/edugain/idps-edugain+renater+sac-metadata.xml";;
-    "edugain-test")
-	url="https://federation.renater.fr/edugain/idps-edugain-metadata.xml https://federation.renater.fr/test/renater-test-metadata.xml";;
+	url="https://metadata.federation.renater.fr/edugain/main/main-all-edugain-metadata.xml";;
     *)
 	echo "Error"
         echo "Unknown federation, please update this script"
@@ -47,10 +46,11 @@ fi
 
 
 # Download metadata
-echo "Downloading metadata..."
+echo "Downloading metadata $1..."
 count=0
 for link in $url; do
     wget --quiet --no-check-certificate $link -O $TMPDIR/$count.xml
+		echo " > Downloaded $link -> $TMPDIR/$count.xml"
     count=$(($count + 1))
     sleep 3;
 done
@@ -70,10 +70,11 @@ elif [ $count -gt 1 ]; then
     python $GEOWAYFDIR/xmlcombine.py $args > $TMPDIR/metadata.xml
     rm $args
 else
+	 	echo "Moving $TMPDIR/0.xml -> $TMPDIR/metadata.xml"
     mv $TMPDIR/0.xml $TMPDIR/metadata.xml
 fi
 
-echo "Checking if XML file is well-formed"
+echo "Checking if XML file is well-formed: $TMPDIR/metadata.xml"
 xmllint --noout $TMPDIR/metadata.xml
 if [ $? -ne 0 ]
 	then

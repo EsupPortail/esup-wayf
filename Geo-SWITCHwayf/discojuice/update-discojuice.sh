@@ -19,7 +19,7 @@ unlock() {
         exit
 }
 trap unlock INT TERM EXIT
-echo $$ > $LOCK
+echo " > "$$ > $LOCK
 
 
 for url in $GEOURLS

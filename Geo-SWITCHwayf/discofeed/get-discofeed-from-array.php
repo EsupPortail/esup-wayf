@@ -28,11 +28,11 @@ else {
 		if (!empty($getFeed) && isJson($getFeed)){
 			$splitedUrl = preg_split('/\//', $value);
 			$file = $JSONdir.$splitedUrl[2].'.json';
-			echo "Fetching discofeed from ".$curl_address."\nSaving discofeed to : ".$file."\n";
+			echo " > Fetching and saving discofeed from ".$curl_address." to ".$file."\n";
 			saveJSONfile($getFeed, $file);
 		}
 		else {
-			echo "Could not fetch discofeed for URL : ".$curl_address . "\n";
+			echo " > Could not fetch discofeed for URL : ".$curl_address . "\n";
 		}
 	}
 }

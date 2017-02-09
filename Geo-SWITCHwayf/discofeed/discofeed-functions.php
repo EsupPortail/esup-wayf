@@ -48,8 +48,9 @@ function fetchDiscoFeed($url) {
 	curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT ,2); 
+	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT ,2);
 	curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+	curl_setopt($ch, CURLOPT_PROXY, '');
 
 	$output = curl_exec($ch);
 	$info = curl_getinfo( $ch );
