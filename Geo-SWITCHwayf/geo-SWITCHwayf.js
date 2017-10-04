@@ -414,12 +414,13 @@ $(function(){
 			var tabMatcher = [];
 			var tabRequete = request.term.split(/ /);
 			for (var iteration in tabRequete){
-				tabMatcher.push(new RegExp("^" + $.ui.autocomplete.escapeRegex(normalize(tabRequete[iteration])), "i" ));
+				tabMatcher.push(new RegExp($.ui.autocomplete.escapeRegex(normalize(tabRequete[iteration])), "i" ));
 			}
 
 			response( updateSideList($.grep( Object.keys(tabIDP), function( text ) {
 
-				var textSplited = text.split(/-| /);
+				var textSplited = text.split(/-| |'/);
+				console.log(textSplited)
 				for (var matcher in tabMatcher){
 					var hasMatched = false;
 					for (var word in textSplited){
@@ -432,7 +433,7 @@ $(function(){
 					}	
 				}
 				return true;
-			}),
-			"searchBar"))}
-		});
+			}), "searchBar"))
+		}
+	});
 });
