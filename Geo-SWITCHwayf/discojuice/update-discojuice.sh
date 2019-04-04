@@ -24,7 +24,7 @@ echo " > "$$ > $LOCK
 
 for url in $GEOURLS
 do
-        wget -q --no-check-certificate -O `basename $url`.json.tmp $url
+        wget -t 3 -T60 -q --no-check-certificate -O `basename $url`.json.tmp $url
         sleep 5;
 done
 
