@@ -3,7 +3,7 @@
 MYDIR=$(dirname $(readlink -f $0))
 
 # Add urls to retrieve geolocation data
-GEOURLS="https://static.discojuice.org/feeds/edugain https://eduspot.renater.fr/discojuice/feed/renater"
+GEOURLS="https://eduspot.renater.fr/discojuice/feed/renater https://static.discojuice.org/feeds/edugain"
 
 cd $MYDIR
 
@@ -22,9 +22,11 @@ trap unlock INT TERM EXIT
 echo " > "$$ > $LOCK
 
 
+l=0
 for url in $GEOURLS
 do
-        wget -t 3 -T60 -q --no-check-certificate -O `basename $url`.json.tmp $url
+        wget -t 3 -T60 -q --no-check-certificate -O $l-`basename $url`.json.tmp $url
+	let "l++"
         sleep 5;
 done
 
