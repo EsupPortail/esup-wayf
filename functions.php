@@ -284,7 +284,9 @@ function getDomainNameFromURI($string){
 	// Check if string is URN
 	if (preg_match('/^urn:mace:/i', $string)){
 		// Return last component of URN
-		return getTopLevelDomain(end(explode(':', $string)));
+		$expl_string = explode(':', $string);
+		$end_expl_string = end($expl_string);
+		return getTopLevelDomain($end_expl_string);
 	}
 	
 	// Apparently we are dealing with something like a URL
