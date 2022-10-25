@@ -107,9 +107,9 @@ $(function(){
 		var div = $('#listeDynamique');
 		div.html('');
 
-		if (IDPtoDisplay.length == 0){
+		if (IDPtoDisplay.length == 0 || IDPtoDisplay.length > 1000){
 			var p = $('<p/>')
-			.text('Aucun résultat.')
+			.text(IDPtoDisplay.length ? "" + IDPtoDisplay.length + ' résultats' : 'Aucun résultat.')
 			.addClass('text-center')
 			.css('margin-top', '15px')
 			.appendTo(div);
@@ -408,7 +408,7 @@ $(function(){
 	})
 	
 	.autocomplete({
-		minLength: 0,
+		minLength: 3,
 		source: function( request, response ) {
 			isSearchingWithMap = false;
 			var tabMatcher = [];
