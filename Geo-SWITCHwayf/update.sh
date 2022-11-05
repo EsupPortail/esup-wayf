@@ -27,6 +27,10 @@ case $1 in
 	url="https://metadata.federation.renater.fr/test/preview/preview-all-renater-test-metadata.xml";;
     "edugain")
 	url="https://metadata.federation.renater.fr/edugain/main/main-all-edugain-metadata.xml";;
+    "renater-edugain")
+	url="https://metadata.federation.renater.fr/edugain/main/main-all-edugain-metadata.xml https://metadata.federation.renater.fr/renater/main/main-all-renater-metadata.xml";;
+    "renater-test-and-edugain")
+	url="https://metadata.federation.renater.fr/test/preview/preview-all-renater-test-metadata.xml https://metadata.federation.renater.fr/edugain/main/main-all-edugain-metadata.xml";;
     *)
 	echo "Error"
         echo "Unknown federation, please update this script"
