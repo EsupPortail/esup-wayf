@@ -227,7 +227,7 @@ $(function(){
 			tabIDP[selected.text].isGeo = true;
 		}
 
-		if (selected.getAttribute('logo') && selected.getAttribute('logo').match("base64")){
+		if (selected.getAttribute('logo')){
 			tabIDP[selected.text].logo = selected.getAttribute('logo');
 			var stringIcone = '<span class="icone" style="background: url('+ tabIDP[selected.text].logo +')"></span>';
 			var awesomeMarker = L.AwesomeMarkers.icon({
