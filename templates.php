@@ -287,20 +287,21 @@ function getPreviouslyUsedIdPsHTML(){
 function printOptionElement($IDProviders, $key, $selectedIDP){
 	global $language;
 	global $discoFeed;
+	global $discoFeedOnlyForLocalSPs;
 
 	// Return if IdP does not exit
 	if (!isset($IDProviders[$key])){
 		return '';
 	}
 
-	if (isset($discoFeed) && !empty($discoFeed)){
+	// Get values
+	$values = $IDProviders[$key];
+	
+	if (isset($discoFeed) && !empty($discoFeed) && (!$discoFeedOnlyForLocalSPs || isset($values['local']))) {
 		if (!array_key_exists($key, $discoFeed)){
 			return '';
 		}
 	}
-	
-	// Get values
-	$values = $IDProviders[$key];
 	
 	// Get IdP Name
 	$IdPName = (isset($values[$language]['Name'])) ? $values[$language]['Name'] : $IdPName = $values['Name'];

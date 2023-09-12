@@ -505,6 +505,7 @@ function mergeInfo($IDProviders, $metadataIDProviders, $SAML2MetaOverLocalConf, 
 			} else {
 					// Entry only exists in local IDProviders file
 					$mergedArray[$allIDPsKey] = $IDProviders[$allIDPsKey];
+					$mergedArray[$allIDPsKey]['local'] = true;
 			}
 		} else {
 			// Entry doesnt exist in in local IDProviders.conf.php

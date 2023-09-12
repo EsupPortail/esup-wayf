@@ -500,6 +500,8 @@ if (
 			foreach ($JSONtab as $cle => $val) {
 				$discoFeed[$val['entityID']] = $val;
 			}
+			global $haveEdugainViaMDQ, $discoFeedOnlyForLocalSPs;
+			$discoFeedOnlyForLocalSPs = in_array($_GET['entityID'], $haveEdugainViaMDQ ?? []);
 		}
 		else {
 			if (!empty($knownSP) && isset($knownSP)){
