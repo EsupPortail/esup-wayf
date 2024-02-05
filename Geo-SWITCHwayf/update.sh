@@ -59,12 +59,7 @@ for link in $url; do
     sleep 3;
 done
 
-if [ $count -gt 2 ]; then
-    echo "Error : Can't merge more than two XML files."
-    echo "Exiting"
-    rm $TMPDIR/*.xml
-    exit 1
-elif [ $count -gt 1 ]; then
+if [ $count -gt 1 ]; then
     echo "Merging XML files with xmlcombine.py"
     i=0
     while [ $i -lt $count ]; do
