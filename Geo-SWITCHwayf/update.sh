@@ -22,15 +22,15 @@ fi
 
 case $1 in
     "renater")
-	url="https://metadata.federation.renater.fr/renater/main/main-all-renater-metadata.xml";;
+	url="https://metadata.federation.renater.fr/renater/main/main-all-renater-metadata.xml.gz";;
     "renater-test")
-	url="https://metadata.federation.renater.fr/test/preview/preview-all-renater-test-metadata.xml";;
+	url="https://metadata.federation.renater.fr/test/preview/preview-all-renater-test-metadata.xml.gz";;
     "edugain")
-	url="https://metadata.federation.renater.fr/edugain/main/main-all-edugain-metadata.xml";;
+	url="https://metadata.federation.renater.fr/edugain/main/main-all-edugain-metadata.xml.gz";;
     "renater-edugain")
-	url="https://metadata.federation.renater.fr/edugain/main/main-all-edugain-metadata.xml https://metadata.federation.renater.fr/renater/main/main-all-renater-metadata.xml";;
+	url="https://metadata.federation.renater.fr/edugain/main/main-all-edugain-metadata.xml.gz https://metadata.federation.renater.fr/renater/main/main-all-renater-metadata.xml.gz";;
     "renater-test-and-edugain")
-	url="https://metadata.federation.renater.fr/test/preview/preview-all-renater-test-metadata.xml https://metadata.federation.renater.fr/edugain/main/main-all-edugain-metadata.xml";;
+	url="https://metadata.federation.renater.fr/test/preview/preview-all-renater-test-metadata.xml.gz https://metadata.federation.renater.fr/edugain/main/main-all-edugain-metadata.xml.gz";;
     *)
 	echo "Error"
         echo "Unknown federation, please update this script"
@@ -53,8 +53,12 @@ fi
 echo "Downloading metadata $1..."
 count=0
 for link in $url; do
-    wget --quiet --no-check-certificate $link -O $TMPDIR/$count.xml
-		echo " > Downloaded $link -> $TMPDIR/$count.xml"
+    if [[ $link == *gz ]]; then
+        wget --quiet --no-check-certificate $link -O - | gunzip > $TMPDIR/$count.xml
+    else
+        wget --quiet --no-check-certificate $link -O $TMPDIR/$count.xml
+    fi
+    echo " > Downloaded $link -> $TMPDIR/$count.xml"
     count=$(($count + 1))
     sleep 3;
 done
