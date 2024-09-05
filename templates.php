@@ -321,6 +321,10 @@ function printOptionElement($IDProviders, $key, $selectedIDP){
 }
 
 function geoDataAttributes($GeolocationHint) {
+	 // Sometime, $GeolocationHint cans be an array and not directly a string
+	if(is_array($GeolocationHint)) {
+	   $GeolocationHint = $GeolocationHint[0];
+	}
 	if ($GeolocationHint &&
 	    preg_match("/^(-?[0-9.]+),(-?[0-9.]+)$/", $GeolocationHint, $match)){
 		return sprintf(' data-lat="%s" data-lon="%s"', $match[1], $match[2]);
