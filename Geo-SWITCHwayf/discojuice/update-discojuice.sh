@@ -1,11 +1,16 @@
 #!/bin/bash
 
 MYDIR=$(dirname $(readlink -f $0))
+DESTDIR=$1
 
 # Add urls to retrieve geolocation data
 GEOURLS="https://eduspot.renater.fr/discojuice/feed/renater https://eduspot.renater.fr/discojuice/feed/edugain"
 
-cd $MYDIR
+[ -d "$DESTDIR" ] || { echo "invalid DESTDIR $DESTDIR"; exit 1; }
+cd $DESTDIR
+
+# copy local files
+cp $MYDIR/*.json $DESTDIR
 
 # lock to avoid concurrent updates
 LOCK="update-map-in-progress.lock"

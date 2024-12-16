@@ -10,7 +10,7 @@
 echo "============  $(date +"%d-%m-%Y %T") ============="
 GEOWAYFDIR=$(dirname $0)
 PATHtoWAYF=$GEOWAYFDIR/..
-TMPDIR=$(sed -n 's/$tmpDir = "\(.*\)";/\1/p' < $PATHtoWAYF/config.php)
+TMPDIR=$(mktemp --directory --suffix .wayf-update)
 
 
 if [ $# -ne 1 ]
@@ -36,17 +36,6 @@ case $1 in
         echo "Unknown federation, please update this script"
         exit 1;;
 esac
-
-if [[ $TMPDIR =~ ^// ]] || [ "x"$TMPDIR == 'x' ]
-    then
-    TMPDIR=$(readlink -f $PATHtoWAYF/tmp)
-fi
-
-# Check if a temp directory exists
-if [ ! -d $TMPDIR ]
-	then
-	mkdir -p $TMPDIR
-fi
 
 
 # Download metadata
@@ -86,13 +75,15 @@ if [ $? -ne 0 ]
 	exit 1
 fi
 
-# Update geolocation hints
-echo "Updating discojuice geolocation hints..."
-$GEOWAYFDIR/discojuice/update-discojuice.sh
+echo "Getting discojuice geolocation hints..."
+mkdir -p $TMPDIR/discojuice
+$GEOWAYFDIR/discojuice/update-discojuice.sh $TMPDIR/discojuice
 
-# Update wayf's metadata
-echo "Updating WAYF's metadata..."
-php $PATHtoWAYF/readMetadata.php
+echo "Updating WAYF's IDProvider.metadata.php & SProvider.metadata.php..."
+php $PATHtoWAYF/readMetadata.php $TMPDIR/metadata.xml $TMPDIR/discojuice
+
+# not needed anymore:
+rm -rf $TMPDIR
 
 
 echo "Updating discofeeds for SPs..."

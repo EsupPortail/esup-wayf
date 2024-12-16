@@ -33,7 +33,10 @@ if(isRunViaCLI()){
 	if (!isset($IDProviders) or !is_array($IDProviders)){
 		$IDProviders = array();
 	}
-	
+
+	$metadataFile = $argv[1];
+	$discoJuiceDir = $argv[2];
+
 	if (
 		   !file_exists($metadataFile) 
 		|| trim(@file_get_contents($metadataFile)) == '') {
@@ -665,7 +668,8 @@ function getAttributeConsumingServiceNames($RoleDescriptorNode){
 /******************************************************************************/
 // Get GeolocationHint from discojuice feed (rely on discojuiceGeolocation/update.sh run in a cron)
 function addDiscojuiceGeolocation(&$metadataIDProviders) {
-	foreach (glob("Geo-SWITCHwayf/discojuice/*.json") as $file) {
+	global $discoJuiceDir;
+	foreach (glob("$discoJuiceDir/*.json") as $file) {
 		foreach (json_decode(file_get_contents($file)) as $e) {
 			if (!isset($metadataIDProviders[$e->entityID])) continue;
 			$IDP = &$metadataIDProviders[$e->entityID];
