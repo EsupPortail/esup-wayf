@@ -70,7 +70,7 @@ if [ $count -gt 1 ]; then
        args="$args$TMPDIR/$i.xml "
        i=$(($i + 1))
     done
-    python $GEOWAYFDIR/xmlcombine.py $args > $TMPDIR/metadata.xml
+    python3 $GEOWAYFDIR/xmlcombine.py $args > $TMPDIR/metadata.xml
     rm $args
 else
 	 	echo "Moving $TMPDIR/0.xml -> $TMPDIR/metadata.xml"
