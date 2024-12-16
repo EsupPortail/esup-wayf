@@ -169,6 +169,7 @@
 
 // Set to true to use discoFeed to filter IDP
 //$useDiscoFeed = true;
+$discoFeedCacheDir = '/var/cache/wayf/discofeed';
 
 // Set to true to retrieve geolocation data for the IDP
 //$UseDiscojuiceGeolocation = true;

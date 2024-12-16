@@ -1,12 +1,9 @@
 <?php
 
+require_once('config.php');
 require_once('discofeed-functions.php');
 
-if (!isset($argv[1])){
-	die ("Error: Invalid number of input arguments!\n\n".$info);
-}
-
-$SPlist = $argv[1];
+$SPlist = $discoFeedCacheDir . '/known-sp.php';
 
 if (!file_exists($SPlist)){
 	die ("Error : File ".$SPlist." doesn't exits. Exiting.");
@@ -14,7 +11,7 @@ if (!file_exists($SPlist)){
 else {
 	
 	require_once($SPlist);
-	$JSONdir = dirname(__FILE__).'/feeds/';
+	$JSONdir = $discoFeedCacheDir . '/';
 
 	if (!file_exists($JSONdir)) {
 		mkdir($JSONdir);

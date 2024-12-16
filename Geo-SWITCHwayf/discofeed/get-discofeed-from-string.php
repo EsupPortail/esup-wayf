@@ -1,12 +1,13 @@
 <?php
 
+	require_once(dirname(__FILE__) . '/../../config.php');
 	require_once('discofeed-functions.php');
 
 	if (!isset($argv[1])){
 		die ("Error: Invalid number of input arguments!\n\n".$info);
 	}
 
-	$JSONdir = dirname(__FILE__).'/feeds/';
+	$JSONdir = $discoFeedCacheDir . '/';
 
 	if (!file_exists($JSONdir)) {
 		mkdir($JSONdir);

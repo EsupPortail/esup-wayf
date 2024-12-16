@@ -474,12 +474,12 @@ if (
 	}
 
 	if ($useDiscoFeed) {
-		$discofeedFile = dirname(__FILE__).'/Geo-SWITCHwayf/discofeed/known-sp.php';
+		$discofeedFile = $discoFeedCacheDir . '/known-sp.php';
 		if (file_exists($discofeedFile)){
 			require_once($discofeedFile);
 		}
 		$discofeedDLCmd = 'php '.dirname(__FILE__).'/Geo-SWITCHwayf/discofeed/get-discofeed-from-string.php';
-		$JSONdir = dirname(__FILE__).'/Geo-SWITCHwayf/discofeed/feeds/';
+		$JSONdir = $discoFeedCacheDir . '/';
 		global $SPShibUrl;
 		$JSONfile;
 		if (is_array($_GET)){

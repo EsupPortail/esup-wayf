@@ -58,9 +58,10 @@ foreach( $EntityDescriptors as $EntityDescriptor ){
 	}
 }
 
+require_once('config.php');
 require_once('discofeed-functions.php');
 
-$JSONdir = dirname(__FILE__).'/feeds/';
+$JSONdir = $discoFeedCacheDir . '/';
 
 if (!file_exists($JSONdir)) {
     mkdir($JSONdir, 0755, true);

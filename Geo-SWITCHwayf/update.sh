@@ -90,12 +90,15 @@ fi
 echo "Updating discojuice geolocation hints..."
 $GEOWAYFDIR/discojuice/update-discojuice.sh
 
-# Refresh WAYF's discofeed
-echo "Downloading discofeeds..."
-php $GEOWAYFDIR/discofeed/get-discofeed-from-array.php $GEOWAYFDIR/discofeed/known-sp.php
-
 # Update wayf's metadata
 echo "Updating WAYF's metadata..."
 php $PATHtoWAYF/readMetadata.php
+
+
+echo "Updating discofeeds for SPs..."
+# uses $discoFeedCacheDir/known-sp.php (contient les SPs demandé au moins une fois. Il est mis à jour dynamiquement par la fonction "addNewDiscofeedURL" dans WAYF)
+# modifies: $discoFeedCacheDir/*.json
+php $GEOWAYFDIR/discofeed/get-discofeed-from-array.php
+
 
 exit 0
