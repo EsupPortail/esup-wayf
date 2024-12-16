@@ -141,9 +141,6 @@ $(function(){
 				if (tabIDP[idp].logo){
 					icone.css("background", "url(" + tabIDP[idp].logo + ")");
 				}
-				else {
-					icone.css("background-position", tabIDP[idp].logoPos + "px 0px");
-				}
 
 				icone.prependTo(a);
 
@@ -198,17 +195,6 @@ $(function(){
 
 	var isSearchingWithMap = true;
 
-	var regCROUS = /CROUS/i;
-	var defaultCROUSLogo = function fetchDefaultLogoCROUS(){
-		for (logo in logo_to_x) {
-			if (regCROUS.test(logo)) {
-				return -logo_to_x[logo]*16-16;
-			}
-		}
-	};
-
-	 //fetchDefaultLogoCROUS();
-	
 	$.each($('#userIdPSelection optgroup[id="idpList"] option'), function(i, selected){
 
 		var nIDP;
@@ -230,25 +216,6 @@ $(function(){
 		if (selected.getAttribute('logo')){
 			tabIDP[selected.text].logo = selected.getAttribute('logo');
 			var stringIcone = '<span class="icone" style="background: url('+ tabIDP[selected.text].logo +')"></span>';
-			var awesomeMarker = L.AwesomeMarkers.icon({
-				icon: stringIcone,
-				markerColor: 'white'
-			});
-		}
-		else {
-			var m = tabIDP[selected.text].donnees.match(/\S+/);
-			var word = m && m[0];
-			var x = logo_to_x[word];
-			if (x){
-				tabIDP[selected.text].logoPos = -x*16-16;
-			} 
-			else if (regCROUS.test(selected.text)) {
-				tabIDP[selected.text].logoPos = defaultCROUSLogo;
-			}
-		}
-
-		if (tabIDP[selected.text].logoPos){
-			var stringIcone = '<span class="icone" style="background-position: '+ tabIDP[selected.text].logoPos +'px 0px;"></span>';
 			var awesomeMarker = L.AwesomeMarkers.icon({
 				icon: stringIcone,
 				markerColor: 'white'
@@ -325,9 +292,6 @@ $(function(){
 
 				if (tabIDP[value.text].logo){
 					icone.css("background", "url(" + tabIDP[value.text].logo + ")");
-				}
-				else {
-					icone.css("background-position", tabIDP[value.text].logoPos + "px 0px");
 				}
 
 				icone.prependTo(a);

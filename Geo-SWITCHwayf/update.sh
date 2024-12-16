@@ -98,8 +98,4 @@ php $GEOWAYFDIR/discofeed/get-discofeed-from-array.php $GEOWAYFDIR/discofeed/kno
 echo "Updating WAYF's metadata..."
 php $PATHtoWAYF/readMetadata.php
 
-# Update icones and sprite sheet
-echo "Updating icones and sprite sheet..."
-$GEOWAYFDIR/favicon-fetcher/update-sprite-sheet.sh $TMPDIR/metadata.xml
-
 exit 0

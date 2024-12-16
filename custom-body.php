@@ -114,5 +114,4 @@
 	<script type="text/javascript" src="Geo-SWITCHwayf/js/leaflet.js"></script>
 	<script type="text/javascript" src="Geo-SWITCHwayf/js/leaflet.awesome-markers.js"></script>
 	<script type="text/javascript" src="Geo-SWITCHwayf/js/leaflet.markercluster.js"></script>
-	<script type="text/javascript" src="Geo-SWITCHwayf/js/sprite_sheet_array.js"></script>
 	<script type="text/javascript" src="Geo-SWITCHwayf/geo-SWITCHwayf.js"></script>
