@@ -60,7 +60,7 @@ if ($IDPConfigFile == $backupIDPConfigFile){
 }
 
 // Read metadata file if configuration option is set
-if($useSAML2Metadata && function_exists('xml_parser_create')){
+if($useSAML2Metadata){
 	require('readMetadata.php');
 }
 
