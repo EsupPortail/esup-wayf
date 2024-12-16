@@ -1,20 +1,8 @@
 # Ignore les fichiers générés par les scripts et les fichiers XML de renater
 
 # Fichiers générés
-Geo-SWITCHwayf/discojuice/*.json
-Geo-SWITCHwayf/discofeed/feeds
-Geo-SWITCHwayf/discofeed/known-sp.php
-Geo-SWITCHwayf/favicon-fetcher/idps-renater-metadata-logos/*
 IDProvider.metadata.php
-IDProvider-logos.conf.php
 SProvider.metadata.php
-discofeed.metadata.php
-tmp/
-.project
-
-# Fichiers XML
-metadata.xml
 
 # Fichier de config
 config.php
-
