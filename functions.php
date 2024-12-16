@@ -722,46 +722,17 @@ function redirectToSP($url, $IdP){
 // The log then can be used to approximately detect how many users were served
 // by the SWITCHwayf
 function logAccessEntry($protocol, $type, $sp, $idp, $return){
-	global $WAYFLogFile, $useLogging;
+	global $useLogging;
 	
 	// Return if logging deactivated
 	if (!$useLogging){
 		return;
 	}
 	
-	// Create log file if it does not exist yet
-	if (!file_exists($WAYFLogFile) && !touch($WAYFLogFile)){
-		// File does not exist and cannot be written to
-		logFatalErrorAndExit('WAYF log file '.$WAYFLogFile.' does not exist and could not be created.');
-	}
-	
-	// Ensure that the file exists and is writable
-	if (!is_writable($WAYFLogFile)) {
-		logFatalErrorAndExit('Current file permission do not allow WAYF to write to its log file '.$WAYFLogFile.'.');
-	}
-	
 	// Compose log entry
 	$entry = date('Y-m-d H:i:s').' '.$_SERVER['REMOTE_ADDR'].' '.$protocol.' '.$type.' '.$idp.' '.$return.' '.$sp."\n";
 	
-	// Open file in append mode
-	if (!$handle = fopen($WAYFLogFile, 'a')) {
-		logFatalErrorAndExit('Could not open file '.$WAYFLogFile.' for appending log entries.');
-	}
-	
-	// Try getting the lock
-	while (!flock($handle, LOCK_EX)){
-		usleep(rand(10, 100));
-	}
-	
-	// Write entry
-	fwrite($handle, $entry);
-	
-	// Release the lock
-	flock($handle, LOCK_UN);
-	
-	// Close file handle
-	fclose($handle);
-	
+	error_log($entry);	
 }
 
 /******************************************************************************/
