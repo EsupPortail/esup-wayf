@@ -9,32 +9,34 @@
 
 echo "============  $(date +"%d-%m-%Y %T") ============="
 GEOWAYFDIR=$(dirname $0)
-PATHtoWAYF=$GEOWAYFDIR/..
-TMPDIR=$(sed -n 's/$tmpDir = "\(.*\)";/\1/p' < $PATHtoWAYF/config.php)
+PATHtoWAYF="/var/www/html/switchwayf"
+TMPDIR="/var/www/html/switchwayf/tmp"
 
 
 if [ $# -ne 1 ]
 	then
 	echo "Error"
-	echo "Usage : Parameter : Federation to use (renater, renater-test, edugain (edugain + renater), edugain-test (edugain + renater-test))"
+	echo "Usage : Parameter : Federation to use (renater, renater-test, edugain, renater-edugain (edugain + renater), renater-edugain-idp (edugain + renater idp only), edugain-test (edugain + renater-test))"
 	exit 1
 fi
 
 case $1 in
     "renater")
-	url="https://metadata.federation.renater.fr/renater/main/main-all-renater-metadata.xml.gz";;
+	url="https://metadata.federation.renater.fr/fer/all.xml.gz";;
     "renater-test")
-	url="https://metadata.federation.renater.fr/test/preview/preview-all-renater-test-metadata.xml.gz";;
+	url="https://metadata.federation.renater.fr/test/all.xml.gz";;
     "edugain")
-	url="https://metadata.federation.renater.fr/edugain/main/main-all-edugain-metadata.xml.gz";;
+	url="https://metadata.federation.renater.fr/edugain/all.xml.gz";;
     "renater-edugain")
-	url="https://metadata.federation.renater.fr/edugain/main/main-all-edugain-metadata.xml.gz https://metadata.federation.renater.fr/renater/main/main-all-renater-metadata.xml.gz";;
+	url="https://metadata.federation.renater.fr/edugain/all.xml.gz https://metadata.federation.renater.fr/fer/all.xml.gz";;
+    "renater-edugain-idp")
+	url="https://pub.federation.renater.fr/metadata/edugain/main/main-idps-edugain-metadata.xml.gz https://pub.federation.renater.fr/metadata/renater/main/main-idps-renater-metadata.xml.gz";;
     "renater-test-and-edugain")
 	url="https://metadata.federation.renater.fr/test/preview/preview-all-renater-test-metadata.xml.gz https://metadata.federation.renater.fr/edugain/main/main-all-edugain-metadata.xml.gz";;
     *)
 	echo "Error"
-        echo "Unknown federation, please update this script"
-        exit 1;;
+    echo "Unknown federation, please update this script"
+    exit 1;;
 esac
 
 if [[ $TMPDIR =~ ^// ]] || [ "x"$TMPDIR == 'x' ]
@@ -53,7 +55,9 @@ fi
 echo "Downloading metadata $1..."
 count=0
 for link in $url; do
+    echo $url
     if [[ $link == *gz ]]; then
+        echo "Décompression de $link"
         wget --quiet --no-check-certificate $link -O - | gunzip > $TMPDIR/$count.xml
     else
         wget --quiet --no-check-certificate $link -O $TMPDIR/$count.xml
@@ -70,11 +74,11 @@ if [ $count -gt 1 ]; then
        args="$args$TMPDIR/$i.xml "
        i=$(($i + 1))
     done
-    python $GEOWAYFDIR/xmlcombine.py $args > $TMPDIR/metadata.xml
+    python3 $GEOWAYFDIR/xmlcombine.py $args
     rm $args
 else
-	 	echo "Moving $TMPDIR/0.xml -> $TMPDIR/metadata.xml"
-    mv $TMPDIR/0.xml $TMPDIR/metadata.xml
+    echo "Moving $TMPDIR/0.xml -> $TMPDIR/metadata.xml"
+    mv -f $TMPDIR/0.xml $TMPDIR/metadata.xml
 fi
 
 echo "Checking if XML file is well-formed: $TMPDIR/metadata.xml"
@@ -99,7 +103,14 @@ echo "Updating WAYF's metadata..."
 php $PATHtoWAYF/readMetadata.php
 
 # Update icones and sprite sheet
-echo "Updating icones and sprite sheet..."
+echo "Updating icones and sprite sheet... braces yourself, it may take a while."
 $GEOWAYFDIR/favicon-fetcher/update-sprite-sheet.sh $TMPDIR/metadata.xml
+
+
+# Keep a copy of yesterday's metadata in case of failure
+test -f /var/cache/shibboleth/metadata-yesterday.xml && rm /var/cache/shibboleth/metadata-yesterday.xml
+test -f /var/cache/shibboleth/metadata.xml && cp /var/cache/shibboleth/metadata.xml /var/cache/shibboleth/metadata-yesterday.xml
+cp $TMPDIR/metadata.xml /var/cache/shibboleth/metadata.xml
+echo "Successfully add metadata into /var/cache/shibboleth/metadata.xml for shibd process."
 
 exit 0
