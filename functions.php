@@ -47,7 +47,6 @@ function initConfigOptions(){
 	global $metadataFile;
 	global $metadataIDPFile;
 	global $metadataSPFile;
-	global $metadataLockFile;
 	global $WAYFLogFile;
 	global $kerberosRedirectURL;
 	global $developmentMode;
@@ -88,7 +87,6 @@ function initConfigOptions(){
 	$defaults['metadataFile'] = '/etc/shibboleth/metadata.switchaai.xml';
 	$defaults['metadataIDPFile'] = 'IDProvider.metadata.php';
 	$defaults['metadataSPFile'] = 'SProvider.metadata.php';
-	$defaults['metadataLockFile'] = (substr($_SERVER['PATH'],0,1) == '/') ? '/tmp/wayf_metadata.lock' : 'C:\windows\TEMP';
 	$defaults['WAYFLogFile'] = '/var/log/wayf/wayf.log'; 
 	$defaults['kerberosRedirectURL'] = dirname($_SERVER['SCRIPT_NAME']).'kerberosRedirect.php';
 	$defaults['developmentMode'] = false;

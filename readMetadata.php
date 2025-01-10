@@ -43,16 +43,6 @@ if(isRunViaCLI()){
 	  exit ("Exiting: File ".$metadataFile." is empty or does not exist\n");
 	}
 	
-	// Get an exclusive lock to generate our parsed IdP and SP files.
-	if (($lockFp = fopen($metadataLockFile, 'a+')) === false) {
-		$errorMsg = 'Could not open lock file '.$metadataLockFile;
-		die($errorMsg);
-	}
-	if (flock($lockFp, LOCK_EX) === false) { 
-		$errorMsg = 'Could not lock file '.$metadataLockFile;
-		die($errorMsg);
-	}
-	
 	echo 'Parsing metadata file '.$metadataFile."\n";
 	list($metadataIDProviders, $metadataSProviders) = parseMetadata($metadataFile, $defaultLanguage);
 
@@ -71,11 +61,6 @@ if(isRunViaCLI()){
 		dumpFile($metadataSPFile, $metadataSProviders, 'metadataSProviders');
 	}
 
-	// Release the lock, and close.
-	flock($lockFp, LOCK_UN);
-	fclose($lockFp);
-	
-	
 	// If $metadataIDProviders is not FALSE, update $IDProviders and print the Identity Providers lists.
 	if(is_array($metadataIDProviders)){ 
 
@@ -102,12 +87,6 @@ if(isRunViaCLI()){
 	
 } elseif (isRunViaInclude()) {
 	
-	// Open the metadata lock file.
-	if (($lockFp = fopen($metadataLockFile, 'a+')) === false) {
-		$errorMsg = 'Could not open lock file '.$metadataLockFile;
-		logError($errorMsg);
-	}
-	
 	// Check that $IDProviders exists
 	if (!isset($IDProviders) or !is_array($IDProviders)){
 		$IDProviders = array();
@@ -120,24 +99,10 @@ if(isRunViaCLI()){
 		
 	} elseif (file_exists($metadataIDPFile)){
 		
-		// Get a shared lock to read the IdP and SP files
-		// generated from the metadata file.
-		if ($lockFp !== false) {
-			if (flock($lockFp, LOCK_SH) === false) { 
-				$errorMsg = 'Could not lock file '.$metadataLockFile;
-				logError($errorMsg);
-			}
-		}
-
 		// Read SP and IDP files generated with metadata
 		require($metadataIDPFile);
 		if (file_exists($metadataSPFile)){
 			require($metadataSPFile);
-		}
-
-		// Release the lock.
-		if ($lockFp !== false) {
-			flock($lockFp, LOCK_UN);
 		}
 
 		// Now merge IDPs from metadata and static file
@@ -145,11 +110,6 @@ if(isRunViaCLI()){
 		
 		// Fow now copy the array by reference
 		$SProviders = &$metadataSProviders;
-	}
-
-	// Close the metadata lock file.
-	if ($lockFp !== false) {
-		fclose($lockFp);
 	}
 	
 } else {

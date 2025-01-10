@@ -30,7 +30,6 @@ Requirements
   * $backupIDPConfigFile (default 'IDProvider.conf.php')
   * $metadataIDPFile (default 'IDProvider.metadata.conf.php')
   * $metadataSPFile (default 'SProvider.metadata.conf.php')
-  * $metadataLockFile (default '/tmp/wayf_metadata.lock')
   * $WAYFLogFile (default '/var/log/apache2/wayf.log')
 
 -------------------------------------------------------------------------------

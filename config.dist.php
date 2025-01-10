@@ -207,10 +207,6 @@ $discoFeedCacheDir = '/var/cache/wayf/discofeed';
 // The user running the script must have permission to create $metadataIdpFile
 //$metadataSPFile = 'SProvider.metadata.php';
 
-// File to use as the lock file for writing the parsed IdP and SP lists.
-// The user running the script must have permission to write $metadataLockFile
-//$metadataLockFile = '/tmp/wayf_metadata.lock';
-
 // Use an absolute URL in case you want to use the embedded WAYF
 //$imageURL = 'https://ds.example.org/SWITCHwayf/images';
 
