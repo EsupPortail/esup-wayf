@@ -114,43 +114,9 @@ if(isRunViaCLI()){
 	}
 	
 	// Run as included file
-	if(!file_exists($metadataIDPFile) or filemtime($metadataFile) > filemtime($metadataIDPFile)){
-	
-		// Get an exclusive lock to regenerate the parsed files.
-		if ($lockFp !== false) {
-			if (flock($lockFp, LOCK_EX) === false) { 
-				$errorMsg = 'Could not get exclusive lock on '.$metadataLockFile;
-				logError($errorMsg);
-			}
-		}
-		
-		// Regenerate $metadataIDPFile.
-		list($metadataIDProviders, $metadataSProviders) = parseMetadata($metadataFile, $defaultLanguage);
+	if(!file_exists($metadataIDPFile)){
 
-		if ($UseDiscojuiceGeolocation) addDiscojuiceGeolocation($metadataIDProviders);
-		
-		// If $metadataIDProviders is not an array (parse error in metadata),
-		// $IDProviders from $IDPConfigFile will be used.
-		if(is_array($metadataIDProviders)){
-			dumpFile($metadataIDPFile, $metadataIDProviders, 'metadataIDProviders');
-			$IDProviders = mergeInfo($IDProviders, $metadataIDProviders, $SAML2MetaOverLocalConf, $includeLocalConfEntries);
-		}
-		
-		if(is_array($metadataSProviders)){
-			dumpFile($metadataSPFile, $metadataSProviders, 'metadataSProviders');
-			require($metadataSPFile);
-		}
-		
-		// Release the lock.
-		if ($lockFp !== false) {
-			flock($lockFp, LOCK_UN);
-		}
-		
-		// Now merge IDPs from metadata and static file
-		$IDProviders = mergeInfo($IDProviders, $metadataIDProviders, $SAML2MetaOverLocalConf, $includeLocalConfEntries);
-		
-		// Fow now copy the array by reference
-		$SProviders = &$metadataSProviders;
+		die("you must run Geo-SWITCHwayf/update.sh in a cron");
 		
 	} elseif (file_exists($metadataIDPFile)){
 		
