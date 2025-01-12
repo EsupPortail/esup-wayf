@@ -1,3 +1,17 @@
+- uniquement modifiés par le cron update.sh (le runtime pourrait les générer, mais ce n'est jamais le cas) :
+
+...www/IDProvider.metadata.php
+...www/SProvider.metadata.php
+
+- modifié par WAYF.php :
+
+$discoFeedCacheDir/known-sp.php
+
+- créés par WAYF.php et mis à jour par le cron :
+
+$discoFeedCacheDir/*.json
+
+
 A cron could be created "0 5 * * * cd /webhome/wayf/www;bash ./Geo-SWITCHwayf/update.sh renater &>> /var/log/wayf/wayf.log"
 
 Those logs are saved into wayf.log
