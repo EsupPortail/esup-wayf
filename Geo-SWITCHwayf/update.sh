@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # 2015 Paris 1 Panthéon-Sorbonne
 
