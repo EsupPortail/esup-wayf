@@ -102,7 +102,7 @@ function initConfigOptions(){
 	$defaults['catEduroamApiUrl'] = 'https://cat.eduroam.org/user/API.php?action=listAllIdentityProviders&api_version=2&lang=en';
 	$defaults['catEduroamAverageGeo'] = false;
 	$defaults['catEduroamFilterOutliers'] = false;
-	$defaults['catEduroamOutliersThreshold'] = 2.0;
+	$defaults['catEduroamOutliersThreshold'] = 1.5;
 	$defaults['discoFeedCacheDir'] = '/var/cache/wayf/discofeed';
 	
 	// Initialize independent defaults

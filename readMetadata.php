@@ -740,7 +740,7 @@ function addCatEduroamGeolocation(&$metadataIDProviders) {
 	$filterOutliers  = !empty($catEduroamFilterOutliers);
 	$outliersThreshold = isset($catEduroamOutliersThreshold) && is_numeric($catEduroamOutliersThreshold)
 		? (float) $catEduroamOutliersThreshold
-		: 2.0;
+		: 1.5;
 
 	// Fetch the CAT API with reasonable timeouts
 	if (!function_exists('curl_init')) {

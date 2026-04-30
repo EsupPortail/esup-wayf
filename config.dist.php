@@ -198,9 +198,9 @@ $discoFeedCacheDir = '/var/cache/wayf/discofeed';
 
     // Number of standard deviations beyond which a geo point is considered an
     // outlier. Lower values are more aggressive (remove more points); higher
-    // values are more permissive. Default: 2.0
+    // values are more permissive. Default: 1.5
     // Requires $catEduroamFilterOutliers to be true.
-    //$catEduroamOutliersThreshold = 2.0;
+    //$catEduroamOutliersThreshold = 1.5;
 
 // Set to true if you want the block my federation to appear
 //$showLocalIDPDiv = true;
