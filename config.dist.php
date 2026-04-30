@@ -188,6 +188,9 @@ $discoFeedCacheDir = '/var/cache/wayf/discofeed';
 
   // When true, geo points that are statistically aberrant are discarded before
   // computing the final coordinate (average or first).
+  // The filter is applied iteratively: centroid and std deviation are recomputed
+  // after each pass until no more points are removed. This is necessary when
+  // multiple outlier clusters exist (a single pass would not remove them all).
   // A point is considered an outlier if its Euclidean distance to the centroid
   // exceeds: mean_distance + $catEduroamOutliersThreshold * std_deviation.
   // Has no effect when fewer than 3 geo entries are available for an institution.

@@ -657,58 +657,74 @@ function getShibmdScopes($RoleDescriptorNode) {
 /******************************************************************************/
 // Removes statistically aberrant geo points from a list of {'lat','lon'} arrays.
 //
-// Algorithm:
-//   1. Compute the centroid (mean lat/lon) of all points.
+// Algorithm (iterative — applied until stable):
+//   1. Compute the centroid (mean lat/lon) of the current point set.
 //   2. Compute the Euclidean distance of each point to the centroid.
 //   3. Compute the mean (mu) and population standard deviation (sigma) of those
 //      distances.
 //   4. Discard any point whose distance exceeds mu + $threshold * sigma.
+//   5. Repeat from step 1 with the remaining points until no more points are
+//      removed in a full pass.
+//
+// The iterative approach is necessary when multiple outlier clusters exist: a
+// single pass only shifts the centroid slightly, whereas iteration progressively
+// converges toward the densest cluster of points.
 //
 // Notes:
 //   - Euclidean distance in lat/lon degrees is sufficient for outlier detection
 //     within a single institution (typically one city or region).
-//   - If the standard deviation is effectively zero (all points coincide),
-//     no filtering is performed.
-//   - If filtering would remove ALL points (pathological case), the original
-//     list is returned unchanged as a safety fallback.
+//   - If the standard deviation is effectively zero (all remaining points
+//     coincide), the loop stops immediately.
+//   - If an iteration would remove ALL remaining points, the previous set is
+//     kept as a safety fallback.
 //   - The function has no effect on lists of fewer than 3 points.
 function _catFilterGeoOutliers(array $points, $threshold) {
-	$n = count($points);
-	if ($n < 3) return $points;
+	if (count($points) < 3) return $points;
 
-	// Centroid
-	$sumLat = 0.0; $sumLon = 0.0;
-	foreach ($points as $p) { $sumLat += $p['lat']; $sumLon += $p['lon']; }
-	$cLat = $sumLat / $n;
-	$cLon = $sumLon / $n;
+	do {
+		$n = count($points);
 
-	// Distances to centroid
-	$distances = array();
-	foreach ($points as $p) {
-		$dlat        = $p['lat'] - $cLat;
-		$dlon        = $p['lon'] - $cLon;
-		$distances[] = sqrt($dlat * $dlat + $dlon * $dlon);
-	}
+		// Centroid
+		$sumLat = 0.0; $sumLon = 0.0;
+		foreach ($points as $p) { $sumLat += $p['lat']; $sumLon += $p['lon']; }
+		$cLat = $sumLat / $n;
+		$cLon = $sumLon / $n;
 
-	// Population mean and standard deviation of distances
-	$meanDist = array_sum($distances) / $n;
-	$variance = 0.0;
-	foreach ($distances as $d) { $variance += ($d - $meanDist) * ($d - $meanDist); }
-	$stdDev = sqrt($variance / $n);
-
-	// All points are essentially identical — nothing to filter
-	if ($stdDev < 1e-9) return $points;
-
-	$maxDist  = $meanDist + $threshold * $stdDev;
-	$filtered = array();
-	foreach ($points as $i => $p) {
-		if ($distances[$i] <= $maxDist) {
-			$filtered[] = $p;
+		// Distances to centroid
+		$distances = array();
+		foreach ($points as $p) {
+			$dlat        = $p['lat'] - $cLat;
+			$dlon        = $p['lon'] - $cLon;
+			$distances[] = sqrt($dlat * $dlat + $dlon * $dlon);
 		}
-	}
 
-	// Safety fallback: never return an empty list
-	return empty($filtered) ? $points : $filtered;
+		// Population mean and standard deviation of distances
+		$meanDist = array_sum($distances) / $n;
+		$variance = 0.0;
+		foreach ($distances as $d) { $variance += ($d - $meanDist) * ($d - $meanDist); }
+		$stdDev = sqrt($variance / $n);
+
+		// All remaining points are essentially identical — stop
+		if ($stdDev < 1e-9) break;
+
+		$maxDist  = $meanDist + $threshold * $stdDev;
+		$filtered = array();
+		foreach ($points as $i => $p) {
+			if ($distances[$i] <= $maxDist) {
+				$filtered[] = $p;
+			}
+		}
+
+		// Safety fallback: never return an empty list; stop iterating
+		if (empty($filtered)) break;
+
+		$changed = (count($filtered) !== $n);
+		$points  = $filtered;
+
+		// Stop if fewer than 3 points remain (no meaningful stats possible)
+	} while ($changed && count($points) >= 3);
+
+	return $points;
 }
 
 /******************************************************************************/
