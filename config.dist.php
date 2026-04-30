@@ -169,6 +169,18 @@ $discoFeedCacheDir = '/var/cache/wayf/discofeed';
 // Set to true to retrieve geolocation data for the IDP
 //$UseDiscojuiceGeolocation = true;
 
+// Set to true to enrich IdP geolocation data from the CAT eduroam API.
+// CAT data takes priority over discojuice: only IdPs without a geolocation hint
+// (from MDUI metadata or a previous CAT lookup) are enriched by discojuice.
+// Matching is done via domain names (mdui:DomainHint > shibmd:Scope > entityID host).
+// Requires network access to https://cat.eduroam.org/ during metadata refresh.
+//$UseCatEduroamGeolocation = true;
+
+  // URL of the CAT eduroam API endpoint used to retrieve IdP geolocation data.
+  // Requires $UseCatEduroamGeolocation to be true.
+  // Change lang= to 'fr' if you prefer French institution names in logs.
+  //$catEduroamApiUrl = 'https://cat.eduroam.org/user/API.php?action=listAllIdentityProviders&api_version=2&lang=en';
+
 // Set to true if you want the block my federation to appear
 //$showLocalIDPDiv = true;
   // Shibboleth's ID for local IDP

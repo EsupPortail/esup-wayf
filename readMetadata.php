@@ -46,6 +46,10 @@ if(isRunViaCLI()){
 	echo 'Parsing metadata file '.$metadataFile."\n";
 	list($metadataIDProviders, $metadataSProviders) = parseMetadata($metadataFile, $defaultLanguage);
 
+	// Enrich with CAT eduroam geolocation first (highest priority, requires network access)
+	if (!empty($UseCatEduroamGeolocation)) addCatEduroamGeolocation($metadataIDProviders);
+
+	// Fall back to discojuice for any remaining IdPs without geolocation
 	if ($UseDiscojuiceGeolocation) addDiscojuiceGeolocation($metadataIDProviders);
 	
 	// If $metadataIDProviders is not FALSE, dump results in $metadataIDPFile.
@@ -325,7 +329,13 @@ function processIDPRoleDescriptor($IDPRoleDescriptorNode){
 	if ($MDUIGeolocationHints){
 		$IDP['GeolocationHint'] = $MDUIGeolocationHints;
 	}
-	
+
+	// Get Shibboleth scopes (used for domain-based matching against CAT eduroam)
+	$shibmdScopes = getShibmdScopes($IDPRoleDescriptorNode);
+	if ($shibmdScopes) {
+		$IDP['Scope'] = $shibmdScopes;
+	}
+
 	return $IDP;
 }
 
@@ -604,6 +614,175 @@ function addDiscojuiceGeolocation(&$metadataIDProviders) {
 			$IDP['GeolocationHint'] = isset($e->geo)?$e->geo->lat . "," . $e->geo->lon:null;
 		}
 	}
+}
+
+/******************************************************************************/
+// Extract shibmd:Scope values from an IDPSSODescriptor XML node.
+// Only non-regexp scopes are returned, as regexp scopes cannot be used
+// for direct domain matching against external databases like CAT eduroam.
+// Namespace: urn:mace:shibboleth:metadata:1.0
+function getShibmdScopes($RoleDescriptorNode) {
+	$scopes = array();
+	$scopeNodes = $RoleDescriptorNode->getElementsByTagNameNS(
+		'urn:mace:shibboleth:metadata:1.0',
+		'Scope'
+	);
+	foreach ($scopeNodes as $scopeNode) {
+		// Skip regexp scopes — they cannot be matched directly as domain names
+		if (strtolower($scopeNode->getAttribute('regexp')) === 'true') continue;
+		$scope = strtolower(trimToSingleLine($scopeNode->nodeValue));
+		if ($scope !== '') {
+			$scopes[] = $scope;
+		}
+	}
+	return $scopes;
+}
+
+/******************************************************************************/
+// Enriches IdP entries with geolocation data fetched from the CAT eduroam API.
+//
+// IMPORTANT: The CAT API returns a numeric internal ID in the 'entityID' field,
+// NOT a SAML entityID. Matching against SAML IdPs is performed via domain names
+// found in the CAT 'keywords' field (e.g. "univ-paris1.fr").
+//
+// Matching strategy (in decreasing order of reliability):
+//   1. mdui:DomainHint values — explicitly declared by the IdP operator
+//   2. shibmd:Scope values declared in the IdP metadata
+//   3. Hostname extracted from entityID URL, with progressive subdomain stripping
+//      (e.g. "idp.univ-paris1.fr" -> "univ-paris1.fr")
+//
+// Only IdPs that do not already have a GeolocationHint are processed.
+// This function must be called BEFORE addDiscojuiceGeolocation() so that
+// CAT data takes priority over discojuice data.
+function addCatEduroamGeolocation(&$metadataIDProviders) {
+	global $catEduroamApiUrl;
+	$apiUrl = !empty($catEduroamApiUrl)
+		? $catEduroamApiUrl
+		: 'https://cat.eduroam.org/user/API.php?action=listAllIdentityProviders&api_version=2&lang=en';
+
+	// Fetch the CAT API with reasonable timeouts
+	if (!function_exists('curl_init')) {
+		syslog(LOG_WARNING, 'addCatEduroamGeolocation: cURL is not available, skipping CAT geolocation');
+		return;
+	}
+	$ch = curl_init($apiUrl);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
+	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+	curl_setopt($ch, CURLOPT_USERAGENT, 'esup-wayf/readMetadata');
+	$output   = curl_exec($ch);
+	$curlErr  = curl_error($ch);
+	$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+	curl_close($ch);
+
+	if (!$output || $curlErr || $httpCode !== 200) {
+		syslog(LOG_WARNING, "addCatEduroamGeolocation: failed to fetch CAT API (http=$httpCode, err=$curlErr)");
+		return;
+	}
+
+	$data = json_decode($output);
+	if (!$data || !is_array($data)) {
+		syslog(LOG_WARNING, 'addCatEduroamGeolocation: invalid JSON from CAT API');
+		return;
+	}
+
+	// Build a flat lookup map: domain (lowercase) => "lat,lon"
+	// CAT keywords is an array of arrays; extract domain-like strings only.
+	// A domain-like string: no spaces, contains a dot, only alphanumeric/hyphen/dot chars.
+	$catGeoMap = array();
+	foreach ($data as $inst) {
+		if (!isset($inst->geo) || !is_array($inst->geo) || count($inst->geo) === 0) continue;
+		if (!isset($inst->keywords) || !is_array($inst->keywords)) continue;
+		$geo = $inst->geo[0];
+		if (!isset($geo->lat, $geo->lon)) continue;
+		$geoStr = $geo->lat . ',' . $geo->lon;
+
+		// The CAT API v2 keywords field may be structured in two ways:
+		//   - Flat array of strings: ["domain1.fr", "domain2.fr"]
+		//   - Array of arrays (one per language): [["en","dom1"],["fr","dom1"]]
+		// We normalise both cases into a flat list of candidate strings.
+		$flatKeywords = array();
+		foreach ($inst->keywords as $keywordGroup) {
+			if (is_array($keywordGroup)) {
+				// Nested structure: each sub-array may start with a language code
+				foreach ($keywordGroup as $keyword) {
+					$flatKeywords[] = (string) $keyword;
+				}
+			} else {
+				// Flat structure: each element is already a keyword string
+				$flatKeywords[] = (string) $keywordGroup;
+			}
+		}
+
+		foreach ($flatKeywords as $keyword) {
+			$kw = strtolower(trim($keyword));
+			// Accept only domain-like strings (no spaces, at least one dot, valid charset)
+			if (strpos($kw, ' ') === false
+				&& strpos($kw, '.') !== false
+				&& preg_match('/^[a-z0-9._-]+$/', $kw)
+			) {
+				// First occurrence wins
+				if (!isset($catGeoMap[$kw])) {
+					$catGeoMap[$kw] = $geoStr;
+				}
+			}
+		}
+	}
+
+	if (empty($catGeoMap)) {
+		syslog(LOG_WARNING, 'addCatEduroamGeolocation: CAT domain map is empty, skipping enrichment');
+		return;
+	}
+
+	$matched = 0;
+	foreach ($metadataIDProviders as $entityID => &$IDP) {
+		// Skip IdPs that already carry a geolocation hint
+		if (!empty($IDP['GeolocationHint'])) continue;
+
+		$candidates = array();
+
+		// 1. mdui:DomainHint values — explicitly declared by the IdP operator, very reliable
+		if (!empty($IDP['DomainHint']) && is_array($IDP['DomainHint'])) {
+			foreach ($IDP['DomainHint'] as $dh) {
+				$candidates[] = strtolower(trim($dh));
+			}
+		}
+
+		// 2. shibmd:Scope values — declared in federation metadata, mirrors institution domain
+		if (!empty($IDP['Scope']) && is_array($IDP['Scope'])) {
+			foreach ($IDP['Scope'] as $scope) {
+				$candidates[] = strtolower(trim($scope));
+			}
+		}
+
+		// 3. Hostname derived from entityID URL, with progressive subdomain stripping
+		//    e.g. "https://idp.univ-paris1.fr/idp/shibboleth" gives:
+		//         "idp.univ-paris1.fr", then "univ-paris1.fr"
+		$host = strtolower((string) parse_url($entityID, PHP_URL_HOST));
+		if ($host !== '') {
+			$candidates[] = $host;
+			$parts     = explode('.', $host);
+			$partCount = count($parts);
+			// Strip leading subdomains while keeping at least two labels
+			for ($i = 1; $i < $partCount - 1; $i++) {
+				$candidates[] = implode('.', array_slice($parts, $i));
+			}
+		}
+
+		// Try each candidate against the CAT domain map (first match wins)
+		foreach (array_unique($candidates) as $candidate) {
+			if (isset($catGeoMap[$candidate])) {
+				$IDP['GeolocationHint'] = $catGeoMap[$candidate];
+				$matched++;
+				break;
+			}
+		}
+	}
+	unset($IDP);
+
+	syslog(LOG_INFO, "addCatEduroamGeolocation: enriched $matched IdP(s) with CAT eduroam geolocation");
 }
 
 ?>
