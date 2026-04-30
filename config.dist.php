@@ -186,6 +186,19 @@ $discoFeedCacheDir = '/var/cache/wayf/discofeed';
   // When false (default), only the first geo entry is used.
   //$catEduroamAverageGeo = true;
 
+  // When true, geo points that are statistically aberrant are discarded before
+  // computing the final coordinate (average or first).
+  // A point is considered an outlier if its Euclidean distance to the centroid
+  // exceeds: mean_distance + $catEduroamOutliersThreshold * std_deviation.
+  // Has no effect when fewer than 3 geo entries are available for an institution.
+  //$catEduroamFilterOutliers = true;
+
+    // Number of standard deviations beyond which a geo point is considered an
+    // outlier. Lower values are more aggressive (remove more points); higher
+    // values are more permissive. Default: 2.0
+    // Requires $catEduroamFilterOutliers to be true.
+    //$catEduroamOutliersThreshold = 2.0;
+
 // Set to true if you want the block my federation to appear
 //$showLocalIDPDiv = true;
   // Shibboleth's ID for local IDP

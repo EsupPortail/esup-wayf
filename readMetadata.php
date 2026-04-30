@@ -654,13 +654,77 @@ function getShibmdScopes($RoleDescriptorNode) {
 // Only IdPs that do not already have a GeolocationHint are processed.
 // This function must be called BEFORE addDiscojuiceGeolocation() so that
 // CAT data takes priority over discojuice data.
+/******************************************************************************/
+// Removes statistically aberrant geo points from a list of {'lat','lon'} arrays.
+//
+// Algorithm:
+//   1. Compute the centroid (mean lat/lon) of all points.
+//   2. Compute the Euclidean distance of each point to the centroid.
+//   3. Compute the mean (mu) and population standard deviation (sigma) of those
+//      distances.
+//   4. Discard any point whose distance exceeds mu + $threshold * sigma.
+//
+// Notes:
+//   - Euclidean distance in lat/lon degrees is sufficient for outlier detection
+//     within a single institution (typically one city or region).
+//   - If the standard deviation is effectively zero (all points coincide),
+//     no filtering is performed.
+//   - If filtering would remove ALL points (pathological case), the original
+//     list is returned unchanged as a safety fallback.
+//   - The function has no effect on lists of fewer than 3 points.
+function _catFilterGeoOutliers(array $points, $threshold) {
+	$n = count($points);
+	if ($n < 3) return $points;
+
+	// Centroid
+	$sumLat = 0.0; $sumLon = 0.0;
+	foreach ($points as $p) { $sumLat += $p['lat']; $sumLon += $p['lon']; }
+	$cLat = $sumLat / $n;
+	$cLon = $sumLon / $n;
+
+	// Distances to centroid
+	$distances = array();
+	foreach ($points as $p) {
+		$dlat        = $p['lat'] - $cLat;
+		$dlon        = $p['lon'] - $cLon;
+		$distances[] = sqrt($dlat * $dlat + $dlon * $dlon);
+	}
+
+	// Population mean and standard deviation of distances
+	$meanDist = array_sum($distances) / $n;
+	$variance = 0.0;
+	foreach ($distances as $d) { $variance += ($d - $meanDist) * ($d - $meanDist); }
+	$stdDev = sqrt($variance / $n);
+
+	// All points are essentially identical — nothing to filter
+	if ($stdDev < 1e-9) return $points;
+
+	$maxDist  = $meanDist + $threshold * $stdDev;
+	$filtered = array();
+	foreach ($points as $i => $p) {
+		if ($distances[$i] <= $maxDist) {
+			$filtered[] = $p;
+		}
+	}
+
+	// Safety fallback: never return an empty list
+	return empty($filtered) ? $points : $filtered;
+}
+
+/******************************************************************************/
 function addCatEduroamGeolocation(&$metadataIDProviders) {
 	global $catEduroamApiUrl;
 	global $catEduroamAverageGeo;
-	$apiUrl = !empty($catEduroamApiUrl)
+	global $catEduroamFilterOutliers;
+	global $catEduroamOutliersThreshold;
+	$apiUrl          = !empty($catEduroamApiUrl)
 		? $catEduroamApiUrl
 		: 'https://cat.eduroam.org/user/API.php?action=listAllIdentityProviders&api_version=2&lang=en';
-	$averageGeo = !empty($catEduroamAverageGeo);
+	$averageGeo      = !empty($catEduroamAverageGeo);
+	$filterOutliers  = !empty($catEduroamFilterOutliers);
+	$outliersThreshold = isset($catEduroamOutliersThreshold) && is_numeric($catEduroamOutliersThreshold)
+		? (float) $catEduroamOutliersThreshold
+		: 2.0;
 
 	// Fetch the CAT API with reasonable timeouts
 	if (!function_exists('curl_init')) {
@@ -698,25 +762,31 @@ function addCatEduroamGeolocation(&$metadataIDProviders) {
 		if (!isset($inst->geo) || !is_array($inst->geo) || count($inst->geo) === 0) continue;
 		if (!isset($inst->keywords) || !is_array($inst->keywords)) continue;
 
-		// Resolve coordinates from the geo array.
-		// If $catEduroamAverageGeo is true, compute the average of all valid
-		// geo entries returned by the API for this institution.
-		// Otherwise, only the first valid entry is used.
-		if ($averageGeo) {
-			$sumLat = 0.0; $sumLon = 0.0; $count = 0;
-			foreach ($inst->geo as $geo) {
-				if (!isset($geo->lat, $geo->lon)) continue;
-				$sumLat += (float) $geo->lat;
-				$sumLon += (float) $geo->lon;
-				$count++;
-			}
-			if ($count === 0) continue;
-			$geoStr = round($sumLat / $count, 6) . ',' . round($sumLon / $count, 6);
-		} else {
-			// Use only the first geo entry (default behaviour)
-			$geo = $inst->geo[0];
+		// --- Step 1: collect all valid geo points for this institution ---
+		$geoPoints = array();
+		foreach ($inst->geo as $geo) {
 			if (!isset($geo->lat, $geo->lon)) continue;
-			$geoStr = $geo->lat . ',' . $geo->lon;
+			$geoPoints[] = array('lat' => (float) $geo->lat, 'lon' => (float) $geo->lon);
+		}
+		if (empty($geoPoints)) continue;
+
+		// --- Step 2: optionally remove statistically aberrant points ---
+		// Requires at least 3 points; has no effect with 1 or 2 points.
+		if ($filterOutliers && count($geoPoints) >= 3) {
+			$geoPoints = _catFilterGeoOutliers($geoPoints, $outliersThreshold);
+		}
+
+		// --- Step 3: compute the final coordinate string ---
+		// If $catEduroamAverageGeo is true, compute the average of all remaining
+		// valid geo entries. Otherwise, only the first entry is used.
+		if ($averageGeo && count($geoPoints) > 1) {
+			$sumLat = 0.0; $sumLon = 0.0;
+			foreach ($geoPoints as $p) { $sumLat += $p['lat']; $sumLon += $p['lon']; }
+			$n      = count($geoPoints);
+			$geoStr = round($sumLat / $n, 6) . ',' . round($sumLon / $n, 6);
+		} else {
+			// Use only the first (or only remaining) geo entry (default behaviour)
+			$geoStr = $geoPoints[0]['lat'] . ',' . $geoPoints[0]['lon'];
 		}
 
 		// The CAT API v2 keywords field may be structured in two ways:

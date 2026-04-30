@@ -54,6 +54,8 @@ function initConfigOptions(){
 	global $UseCatEduroamGeolocation;
 	global $catEduroamApiUrl;
 	global $catEduroamAverageGeo;
+	global $catEduroamFilterOutliers;
+	global $catEduroamOutliersThreshold;
 	global $discoFeedCacheDir;
 
 	// Set independet default configuration options
@@ -99,6 +101,8 @@ function initConfigOptions(){
 	$defaults['UseCatEduroamGeolocation'] = false;
 	$defaults['catEduroamApiUrl'] = 'https://cat.eduroam.org/user/API.php?action=listAllIdentityProviders&api_version=2&lang=en';
 	$defaults['catEduroamAverageGeo'] = false;
+	$defaults['catEduroamFilterOutliers'] = false;
+	$defaults['catEduroamOutliersThreshold'] = 2.0;
 	$defaults['discoFeedCacheDir'] = '/var/cache/wayf/discofeed';
 	
 	// Initialize independent defaults
