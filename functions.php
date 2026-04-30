@@ -53,6 +53,7 @@ function initConfigOptions(){
 	global $UseDiscojuiceGeolocation;
 	global $UseCatEduroamGeolocation;
 	global $catEduroamApiUrl;
+	global $catEduroamAverageGeo;
 	global $discoFeedCacheDir;
 
 	// Set independet default configuration options
@@ -97,6 +98,7 @@ function initConfigOptions(){
 	$defaults['UseDiscojuiceGeolocation'] = false;
 	$defaults['UseCatEduroamGeolocation'] = false;
 	$defaults['catEduroamApiUrl'] = 'https://cat.eduroam.org/user/API.php?action=listAllIdentityProviders&api_version=2&lang=en';
+	$defaults['catEduroamAverageGeo'] = false;
 	$defaults['discoFeedCacheDir'] = '/var/cache/wayf/discofeed';
 	
 	// Initialize independent defaults

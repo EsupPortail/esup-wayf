@@ -656,9 +656,11 @@ function getShibmdScopes($RoleDescriptorNode) {
 // CAT data takes priority over discojuice data.
 function addCatEduroamGeolocation(&$metadataIDProviders) {
 	global $catEduroamApiUrl;
+	global $catEduroamAverageGeo;
 	$apiUrl = !empty($catEduroamApiUrl)
 		? $catEduroamApiUrl
 		: 'https://cat.eduroam.org/user/API.php?action=listAllIdentityProviders&api_version=2&lang=en';
+	$averageGeo = !empty($catEduroamAverageGeo);
 
 	// Fetch the CAT API with reasonable timeouts
 	if (!function_exists('curl_init')) {
@@ -695,9 +697,27 @@ function addCatEduroamGeolocation(&$metadataIDProviders) {
 	foreach ($data as $inst) {
 		if (!isset($inst->geo) || !is_array($inst->geo) || count($inst->geo) === 0) continue;
 		if (!isset($inst->keywords) || !is_array($inst->keywords)) continue;
-		$geo = $inst->geo[0];
-		if (!isset($geo->lat, $geo->lon)) continue;
-		$geoStr = $geo->lat . ',' . $geo->lon;
+
+		// Resolve coordinates from the geo array.
+		// If $catEduroamAverageGeo is true, compute the average of all valid
+		// geo entries returned by the API for this institution.
+		// Otherwise, only the first valid entry is used.
+		if ($averageGeo) {
+			$sumLat = 0.0; $sumLon = 0.0; $count = 0;
+			foreach ($inst->geo as $geo) {
+				if (!isset($geo->lat, $geo->lon)) continue;
+				$sumLat += (float) $geo->lat;
+				$sumLon += (float) $geo->lon;
+				$count++;
+			}
+			if ($count === 0) continue;
+			$geoStr = round($sumLat / $count, 6) . ',' . round($sumLon / $count, 6);
+		} else {
+			// Use only the first geo entry (default behaviour)
+			$geo = $inst->geo[0];
+			if (!isset($geo->lat, $geo->lon)) continue;
+			$geoStr = $geo->lat . ',' . $geo->lon;
+		}
 
 		// The CAT API v2 keywords field may be structured in two ways:
 		//   - Flat array of strings: ["domain1.fr", "domain2.fr"]

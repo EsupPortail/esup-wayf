@@ -181,6 +181,11 @@ $discoFeedCacheDir = '/var/cache/wayf/discofeed';
   // Change lang= to 'fr' if you prefer French institution names in logs.
   //$catEduroamApiUrl = 'https://cat.eduroam.org/user/API.php?action=listAllIdentityProviders&api_version=2&lang=en';
 
+  // When true, the final coordinates for an IdP are computed as the average of
+  // all geo entries returned by the CAT API for that institution.
+  // When false (default), only the first geo entry is used.
+  //$catEduroamAverageGeo = true;
+
 // Set to true if you want the block my federation to appear
 //$showLocalIDPDiv = true;
   // Shibboleth's ID for local IDP
