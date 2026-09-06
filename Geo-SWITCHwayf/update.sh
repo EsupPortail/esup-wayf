@@ -22,15 +22,15 @@ fi
 
 case $1 in
     "renater")
-	url="https://metadata.federation.renater.fr/fer/all.xml.gz";;
+	url="https://pub.federation.renater.fr/metadata/fer/all.xml.gz";;
     "renater-test")
-	url="https://metadata.federation.renater.fr/test/all.xml.gz";;
+	url="https://pub.federation.renater.fr/metadata/test/all.xml.gz";;
     "edugain")
-	url="https://metadata.federation.renater.fr/edugain/all.xml.gz";;
+	url="https://pub.federation.renater.fr/metadata/edugain/all.xml.gz";;
     "renater-edugain")
-	url="https://metadata.federation.renater.fr/edugain/all.xml.gz https://metadata.federation.renater.fr/fer/all.xml.gz";;
+	url="https://pub.federation.renater.fr/metadata/edugain/all.xml.gz https://pub.federation.renater.fr/metadata/fer/all.xml.gz";;
     "renater-test-and-edugain")
-	url="https://metadata.federation.renater.fr/test/all.xml.gz https://metadata.federation.renater.fr/edugain/all.xml.gz";;
+	url="https://pub.federation.renater.fr/metadata/test/all.xml.gz https://pub.federation.renater.fr/metadata/edugain/all.xml.gz";;
     *)
 	echo "Error"
         echo "Unknown federation, please update this script"
