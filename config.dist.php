@@ -169,6 +169,39 @@ $discoFeedCacheDir = '/var/cache/wayf/discofeed';
 // Set to true to retrieve geolocation data for the IDP
 //$UseDiscojuiceGeolocation = true;
 
+// Set to true to enrich IdP geolocation data from the CAT eduroam API.
+// CAT data takes priority over discojuice: only IdPs without a geolocation hint
+// (from MDUI metadata or a previous CAT lookup) are enriched by discojuice.
+// Matching is done via domain names (mdui:DomainHint > shibmd:Scope > entityID host).
+// Requires network access to https://cat.eduroam.org/ during metadata refresh.
+//$UseCatEduroamGeolocation = true;
+
+  // URL of the CAT eduroam API endpoint used to retrieve IdP geolocation data.
+  // Requires $UseCatEduroamGeolocation to be true.
+  // Change lang= to 'fr' if you prefer French institution names in logs.
+  //$catEduroamApiUrl = 'https://cat.eduroam.org/user/API.php?action=listAllIdentityProviders&api_version=2&lang=en';
+
+  // When true, the final coordinates for an IdP are computed as the average of
+  // all geo entries returned by the CAT API for that institution.
+  // When false (default), only the first geo entry is used.
+  //$catEduroamAverageGeo = true;
+
+  // When true, geo points that are statistically aberrant are discarded before
+  // computing the final coordinate (average or first).
+  // The filter is applied iteratively: centroid and std deviation are recomputed
+  // after each pass until no more points are removed. This is necessary when
+  // multiple outlier clusters exist (a single pass would not remove them all).
+  // A point is considered an outlier if its Euclidean distance to the centroid
+  // exceeds: mean_distance + $catEduroamOutliersThreshold * std_deviation.
+  // Has no effect when fewer than 3 geo entries are available for an institution.
+  //$catEduroamFilterOutliers = true;
+
+    // Number of standard deviations beyond which a geo point is considered an
+    // outlier. Lower values are more aggressive (remove more points); higher
+    // values are more permissive. Default: 1.5
+    // Requires $catEduroamFilterOutliers to be true.
+    //$catEduroamOutliersThreshold = 1.5;
+
 // Set to true if you want the block my federation to appear
 //$showLocalIDPDiv = true;
   // Shibboleth's ID for local IDP

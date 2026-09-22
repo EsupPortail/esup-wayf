@@ -29,6 +29,36 @@ To enable discofeed on SP (Require Shibboleth >= 2.4)
 - Restart Shibboleth.
 - Check that you can display the JSON file at "yourSP.univ.fr/Shibboleth.sso/DiscoFeed", the content of the SP's metadata file should appear.
 
+## Geolocation sources and priority
+
+Geolocation coordinates displayed on the map are resolved from up to three sources,
+tried in the following order for each IdP:
+
+1. **`mdui:GeolocationHint`** already declared in the SAML federation metadata  
+   (most authoritative when present — set by the IdP operator in the metadata).
+
+2. **eduroam CAT API** (`https://cat.eduroam.org`)  
+   The Configuration Assistant Tool maintains coordinates for eduroam-enabled
+   institutions. Matching is performed by domain name using three successive
+   strategies (first match wins):
+   - `mdui:DomainHint` declared in the IdP's MDUI extensions
+   - `shibmd:Scope` values declared in the IdP's metadata extensions
+   - Hostname derived from the entityID URL, with progressive subdomain stripping  
+     (e.g. `idp.univ-paris1.fr` → `univ-paris1.fr`)
+
+3. **Discojuice feed** (`$UseDiscojuiceGeolocation`)  
+   JSON files downloaded by `Geo-SWITCHwayf/discojuice/update-discojuice.sh`.
+
+To enable the CAT eduroam enrichment, set in your `config.php`:
+
+```php
+$UseCatEduroamGeolocation = true;
+```
+
+This requires network access to `https://cat.eduroam.org/` during the metadata
+refresh (cron `update.sh`). CAT data is only used as a fallback for IdPs that
+do not already have a `GeolocationHint` in the federation metadata.
+
 **Important:**
 
 Make sure to enable writing permissions for the files IDProvider.metadata.php, SProvider.metadata.php, wayf_metadata.lock.

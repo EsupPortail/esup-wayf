@@ -50,7 +50,14 @@ function initConfigOptions(){
 	global $WAYFLogFile;
 	global $kerberosRedirectURL;
 	global $developmentMode;
-	
+	global $UseDiscojuiceGeolocation;
+	global $UseCatEduroamGeolocation;
+	global $catEduroamApiUrl;
+	global $catEduroamAverageGeo;
+	global $catEduroamFilterOutliers;
+	global $catEduroamOutliersThreshold;
+	global $discoFeedCacheDir;
+
 	// Set independet default configuration options
 	$defaults = array();
 	$defaults['defaultLanguage'] = 'en'; 
@@ -90,6 +97,13 @@ function initConfigOptions(){
 	$defaults['WAYFLogFile'] = '/var/log/wayf/wayf.log'; 
 	$defaults['kerberosRedirectURL'] = dirname($_SERVER['SCRIPT_NAME']).'kerberosRedirect.php';
 	$defaults['developmentMode'] = false;
+	$defaults['UseDiscojuiceGeolocation'] = false;
+	$defaults['UseCatEduroamGeolocation'] = false;
+	$defaults['catEduroamApiUrl'] = 'https://cat.eduroam.org/user/API.php?action=listAllIdentityProviders&api_version=2&lang=en';
+	$defaults['catEduroamAverageGeo'] = false;
+	$defaults['catEduroamFilterOutliers'] = false;
+	$defaults['catEduroamOutliersThreshold'] = 1.5;
+	$defaults['discoFeedCacheDir'] = '/var/cache/wayf/discofeed';
 	
 	// Initialize independent defaults
 	foreach($defaults as $key => $value){
